@@ -1,4 +1,4 @@
-# Final Degree Project (TFG) – Multivariate and Spatial Analysis of Mortality in Catalonia using INLA
+# Multivariate and Spatial Analysis of Mortality in Catalonia using INLA
 
 This repository contains the code, data workflows, and documentation for our final project in Statistical Consulting at the Universitat Autònoma de Barcelona (UAB), including data analysis, INLA modeling, and interactive visualization with Shiny.
 
