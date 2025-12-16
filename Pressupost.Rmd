@@ -1,0 +1,81 @@
+---
+title: "Treball 5"
+author: "Jordi Anguera"
+date: "2025-12-16"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Pressupost
+
+```{r}
+library(knitr)
+library(kableExtra)
+library(dplyr)
+
+# Taula de pressupost
+pressupost <- tibble(
+  Fase = c(
+    "1. Recerca prèvia sobre el tema",
+    "2. Preparació i integració de dades",
+    "3. Anàlisi descriptiva i exploratòria",
+    "4. Modelització estadística primària",
+    "5. Modelització estadística secundària (avançada)",
+    "6. Interpretació, visualització i validació",
+    "7. Redacció de l’informe i presentació"
+  ),
+  Hores = c(12, 18, 25, 25, 20, 20, 20),
+  Tarifa = c(90, 100, 120, 130, 150, 120, 120),
+  Cost = c(1080, 1800, 3000, 3250, 3000, 2400, 2400)
+) %>%
+  mutate(
+    `Hores dedicades` = paste0(Hores, " h"),
+    `Tarifa aplicada` = paste0(Tarifa, " € / h"),
+    `Cost total` = paste0(format(Cost, big.mark = ".", decimal.mark = ","), " €")
+  ) %>%
+  select(
+    Fase,
+    `Hores dedicades`,
+    `Tarifa aplicada`,
+    `Cost total`
+  )
+
+# Afegir fila de totals
+pressupost_final <- bind_rows(
+  pressupost,
+  tibble(
+    Fase = "TOTAL PROJECTE",
+    `Hores dedicades` = paste0(sum(c(12,18,25,25,20,20,20)), " h"),
+    `Tarifa aplicada` = "—",
+    `Cost total` = paste0(
+      format(sum(c(1080,1800,3000,3250,3000,2400,2400)),
+             big.mark = ".", decimal.mark = ","),
+      " €"
+    )
+  )
+)
+
+# Taula final
+kable(
+  pressupost_final,
+  format = "latex",
+  align = c("l", "c", "c", "c"),
+  caption = "Pressupost orientatiu del projecte (3–4 setmanes · equip de 4 estadístics)"
+) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = FALSE,
+    position = "center",
+    font_size = 14
+  ) %>%
+  row_spec(0, bold = TRUE) %>%
+  row_spec(nrow(pressupost_final), 
+            bold = TRUE, 
+            background = "#F2F2F2",
+            extra_css = "border-top: 2px solid #999;")
+
+```
+
