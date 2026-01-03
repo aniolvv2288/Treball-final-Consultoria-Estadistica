@@ -9,6 +9,7 @@ fitxers <- c("10020003.DAT", "10020403.DAT", "10020803.DAT", "10021111.DAT",
 
 processa <- function(path) {
   lines <- readLines(path)
+  
   df <- data.frame(
     proces      = substr(lines, 1, 2),
     any         = substr(lines, 3, 6),
@@ -21,19 +22,30 @@ processa <- function(path) {
     tipus       = substr(lines, 23, 23),
     candidatura = substr(lines, 24, 29),
     vots        = as.integer(substr(lines, 30, 36)),
-    stringsAsFactors = FALSE)
+    stringsAsFactors = FALSE
+  )
+  
+  df <- df[df$provincia %in% c("08", "17", "25", "43"), ]
   
   df$codi <- paste0(
     sprintf("%02s", df$provincia),
     sprintf("%03s", df$municipi),
     sprintf("%02s", df$districte),
-    sprintf("%03s", df$seccio))
+    sprintf("%03s", df$seccio)
+  )
+  
   df
 }
-
 
 for (f in fitxers) {
   df <- processa(f)
   nom_rds <- sub("\\.DAT$", ".rds", f)
   saveRDS(df, nom_rds)
 }
+
+llista_df <- lapply(fitxers, processa)
+df_total <- do.call(rbind, llista_df)
+
+saveRDS(df_total, "resultats_totals.rds")
+
+View(df_total)
