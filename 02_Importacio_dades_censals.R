@@ -49,3 +49,5 @@ df_total <- do.call(rbind, llista_df)
 saveRDS(df_total, "resultats_totals.rds")
 
 View(df_total)
+
+
