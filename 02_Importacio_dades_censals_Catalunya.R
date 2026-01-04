@@ -1,7 +1,6 @@
-# Obtenció i emmagatzematge de les dades censals històriques
-
-library(data.table)
-library(dplyr)
+################################################################################
+# ----- IMPORTACIÓ I EMMAGATZEMATGE DE LES DADES CENSALS HISTÒRIQUES -----
+################################################################################
 
 fitxers <- c("10020003.DAT", "10020403.DAT", "10020803.DAT", "10021111.DAT",
   "10021512.DAT", "10021606.DAT", "10021904.DAT", "10021911.DAT",
@@ -46,8 +45,5 @@ for (f in fitxers) {
 llista_df <- lapply(fitxers, processa)
 df_total <- do.call(rbind, llista_df)
 
-saveRDS(df_total, "resultats_totals.rds")
-
-View(df_total)
-
+# saveRDS(df_total, "resultats_totals.rds")
 
