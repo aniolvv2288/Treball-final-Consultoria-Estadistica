@@ -1,5 +1,10 @@
-# Llibreries emprades en el projecte
+################################################################################
+# ----- LLIBRERIES EMPRADES EN EL PROJECTE -----
+################################################################################
 
 library(data.table)
 library(dplyr)
+library(readr)
+library(tidyr)
+library(stringr)
 
