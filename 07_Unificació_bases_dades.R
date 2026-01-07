@@ -8,9 +8,6 @@ dades_tarragona <- readRDS("dades_tarragona.rds")
 dades_lleida <- readRDS("dades_lleida.rds")
 resultatsvots <- readRDS("resultats_totals.rds")
 
-library(dplyr)
-library(tibble)
-
 dades_catalunya <- bind_rows(dades_barcelona, dades_girona, dades_lleida, dades_tarragona)
 
 resultatsvots <- resultatsvots %>%
