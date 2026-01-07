@@ -47,4 +47,4 @@ dfcomplet[] <- lapply(dfcomplet, function(x) {
   x
 })
 
-
+#saveRDS(dfcomplet, "dfcomplet.rds")

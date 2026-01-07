@@ -38,5 +38,24 @@ for (f in fitxers) {
 llista_df <- lapply(fitxers, processa)
 df_total <- do.call(rbind, llista_df)
 
+canditatures <- sub("^10", "03", fitxers)
+
+processacanditatures <- function(path) {
+  lines <- readLines(path, encoding = "latin1")
+  lines <- iconv(lines, from = "latin1", to = "UTF-8")
+  df <- data.frame(
+    candidatura = substr(lines, 9, 14),
+    sigles = trimws(substr(lines, 15, 64)),
+    nom_partit = trimws(substr(lines, 65, 214)),
+    stringsAsFactors = FALSE
+  )
+  return(df)
+}
+
+llista_partits <- lapply(canditatures, processacanditatures)
+df_partits <- do.call(rbind, llista_partits)
+
+df_total <- merge(df_total, df_partits, by = "candidatura", all.x = TRUE)
+
 #saveRDS(df_total, "resultats_totals.rds")
 
