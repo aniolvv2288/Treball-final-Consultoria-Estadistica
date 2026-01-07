@@ -1,6 +1,10 @@
 ---
-title: "Treball 5"
-author: "Jordi Anguera"
+title: "Planificació del projecte"
+author:
+  - "Aniol Vilamala Vidal (1665797)"
+  - "Èric Segon Salmerón (1672984)"
+  - "Jordi Anguera Costa (1673351)"
+  - "Daniel Jiménez López (1671067) "
 date: "2025-12-16"
 output: pdf_document
 ---
@@ -8,6 +12,13 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+# Descripció del projecte
+
+Aquest document descriu la planificació temporal i pressupostària del projecte estadístic, amb l’objectiu de facilitar el seguiment i l’execució del treball.
+El projecte es basa en l’anàlisi de dades censals agregades amb l’objectiu de desenvolupar diferents models estadístics de caràcter explicatiu que permetin analitzar i comprendre els resultats electorals observats en les diverses unitats censals al llarg de diferents processos electorals i anys.
+Per dur a terme aquest anàlisi, s’incorporaran variables socioeconòmiques, amb especial atenció als indicadors relacionats amb la renda i altres factors que influeixen en les condicions de vida de la població. Aquestes variables s’utilitzaran com a factors explicatius del comportament electoral, permetent avaluar la seva relació amb l’evolució dels resultats en el temps i entre territoris.
+L’enfocament de l’estudi serà principalment explicatiu, orientat a identificar patrons i associacions rellevants entre les característiques socioeconòmiques dels censos i els resultats electorals, així com a realitzar comparacions entre diferents períodes temporals sempre que la disponibilitat de dades ho permeti.
 
 # Pressupost
 
@@ -159,7 +170,7 @@ ggplot(fases) +
   
   labs(
     title = "Planificació temporal del projecte",
-    subtitle = "Distribució d'hores per fase (equip de 4 estadístics · 3–4 setmanes)",
+    subtitle = "Distribució d'hores per fase",
     color = "Tipus de fase"
   ) +
   guides(
