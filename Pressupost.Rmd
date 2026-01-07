@@ -79,7 +79,7 @@ kable(
   caption = "{Pressupost orientatiu del projecte (3–4 setmanes · equip de 4 estadístics)}",
 ) %>%
   kable_styling(
-    latex_options = "hold_position",
+    latex_options = c("hold_position", "scale_down"),
     bootstrap_options = c("striped", "hover", "condensed"),
     full_width = FALSE,
     position = "center",
@@ -97,7 +97,7 @@ kable(
 library(ggplot2)
 library(dplyr)
 library(stringr)
-# Datos
+
 fases <- tibble(
   fase = c(
     "Recerca prèvia",
@@ -128,23 +128,23 @@ fases <- tibble(
     levels = rev(str_wrap(fase_num_raw, width = 30))
 ))
 
-# Separadores de semanas (40 h por semana)
+
 setmanes <- seq(40, 120, by = 40)
 
 ggplot(fases) +
-  # Líneas de semanas
+
   geom_vline(xintercept = setmanes,
              linetype = "dashed",
              color = "grey70") +
   
-  # Barras de fases
+
   geom_segment(aes(x = inici, xend = fi,
                    y = fase_num, yend = fase_num,
                    color = tipus),
                linewidth = 7,
                linecap = "round") +
   
-  # Horas dentro
+
   geom_text(aes(x = (inici + fi)/2,
                 y = fase_num,
                 label = paste0(hores, " h")),
@@ -179,6 +179,7 @@ ggplot(fases) +
   
   theme_minimal(base_size = 13) +
   theme(
+    axis.title.x = element_text(size = 9),
     panel.grid.major.y = element_blank(),
     panel.grid.minor = element_blank(),
     axis.title.y = element_blank(),
