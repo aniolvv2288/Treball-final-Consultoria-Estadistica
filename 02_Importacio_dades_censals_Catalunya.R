@@ -32,11 +32,11 @@ processa <- function(path) {
 for (f in fitxers) {
   df <- processa(f)
   nom_rds <- sub("\\.DAT$", ".rds", f)
-  saveRDS(df, nom_rds)
+  #saveRDS(df, nom_rds)
 }
 
 llista_df <- lapply(fitxers, processa)
 df_total <- do.call(rbind, llista_df)
 
-saveRDS(df_total, "resultats_totals.rds")
+#saveRDS(df_total, "resultats_totals.rds")
 
