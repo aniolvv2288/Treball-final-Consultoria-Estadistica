@@ -1,6 +1,10 @@
 ---
-title: "Treball 5"
-author: "Jordi Anguera"
+title: "Planificació del projecte"
+author:
+  - "Aniol Vilamala Vidal (1665797)"
+  - "Èric Segon Salmerón (1672984)"
+  - "Jordi Anguera Costa (1673351)"
+  - "Daniel Jiménez López (1671067) "
 date: "2025-12-16"
 output: pdf_document
 ---
@@ -9,9 +13,16 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Descripció del projecte
+
+Aquest document descriu la planificació temporal i pressupostària del projecte estadístic, amb l’objectiu de facilitar el seguiment i l’execució del treball.
+El projecte es basa en l’anàlisi de dades censals agregades amb l’objectiu de desenvolupar diferents models estadístics de caràcter explicatiu que permetin analitzar i comprendre els resultats electorals observats en les diverses unitats censals al llarg de diferents processos electorals i anys.
+Per dur a terme aquest anàlisi, s’incorporaran variables socioeconòmiques, amb especial atenció als indicadors relacionats amb la renda i altres factors que influeixen en les condicions de vida de la població. Aquestes variables s’utilitzaran com a factors explicatius del comportament electoral, permetent avaluar la seva relació amb l’evolució dels resultats en el temps i entre territoris.
+L’enfocament de l’estudi serà principalment explicatiu, orientat a identificar patrons i associacions rellevants entre les característiques socioeconòmiques dels censos i els resultats electorals, així com a realitzar comparacions entre diferents períodes temporals sempre que la disponibilitat de dades ho permeti.
+
 # Pressupost
 
-```{r}
+```{r,warning=FALSE,echo=FALSE,message=FALSE}
 library(knitr)
 library(kableExtra)
 library(dplyr)
@@ -49,23 +60,26 @@ pressupost_final <- bind_rows(
   tibble(
     Fase = "TOTAL PROJECTE",
     `Hores dedicades` = paste0(sum(c(12,18,25,25,20,20,20)), " h"),
-    `Tarifa aplicada` = "—",
+    `Tarifa aplicada` = "",
     `Cost total` = paste0(
-      format(sum(c(1080,1800,3000,3250,3000,2400,2400)),
+      format(sum(c(12,18,25,25,20,20,20) * c(90,100,120,130,150,120,120)),
              big.mark = ".", decimal.mark = ","),
       " €"
     )
   )
 )
+```
 
+```{r,warning=FALSE,echo=FALSE,message=FALSE}
 # Taula final
 kable(
   pressupost_final,
   format = "latex",
   align = c("l", "c", "c", "c"),
-  caption = "Pressupost orientatiu del projecte (3–4 setmanes · equip de 4 estadístics)"
+  caption = "{Pressupost orientatiu del projecte (3–4 setmanes · equip de 4 estadístics)}",
 ) %>%
   kable_styling(
+    latex_options = c("hold_position", "scale_down"),
     bootstrap_options = c("striped", "hover", "condensed"),
     full_width = FALSE,
     position = "center",
@@ -76,6 +90,103 @@ kable(
             bold = TRUE, 
             background = "#F2F2F2",
             extra_css = "border-top: 2px solid #999;")
+
+```
+
+```{r timeline_pro, echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+library(stringr)
+
+fases <- tibble(
+  fase = c(
+    "Recerca prèvia",
+    "Preparació i integració de dades",
+    "Anàlisi descriptiva i exploratòria",
+    "Modelització estadística primària",
+    "Modelització estadística secundària",
+    "Interpretació, visualització i validació",
+    "Redacció de l'informe i presentació"
+  ),
+  hores = c(12, 18, 25, 25, 20, 20, 20),
+  tipus = c(
+    "Planificació",
+    "Planificació",
+    "Anàlisi",
+    "Modelització",
+    "Modelització",
+    "Validació",
+    "Comunicació"
+  )
+) %>%
+  mutate(
+    inici = cumsum(lag(hores, default = 0)),
+    fi = inici + hores,
+    fase_num_raw = paste0(row_number(), ". ", fase),
+    fase_num = factor(
+    str_wrap(fase_num_raw, width = 30),                 # 👈 salto de línea
+    levels = rev(str_wrap(fase_num_raw, width = 30))
+))
+
+
+setmanes <- seq(40, 120, by = 40)
+
+ggplot(fases) +
+
+  geom_vline(xintercept = setmanes,
+             linetype = "dashed",
+             color = "grey70") +
+  
+
+  geom_segment(aes(x = inici, xend = fi,
+                   y = fase_num, yend = fase_num,
+                   color = tipus),
+               linewidth = 7,
+               linecap = "round") +
+  
+
+  geom_text(aes(x = (inici + fi)/2,
+                y = fase_num,
+                label = paste0(hores, " h")),
+            color = "white",
+            size = 4,
+            fontface = "bold") +
+  
+  scale_color_manual(
+    values = c(
+      "Planificació" = "#1B9E77",
+      "Anàlisi" = "#7570B3",
+      "Modelització" = "#D95F02",
+      "Validació" = "#E7298A",
+      "Comunicació" = "#66A61E"
+    )
+  ) +
+  
+  scale_x_continuous(
+    breaks = seq(0, 140, by = 20),
+    expand = c(0, 0),
+    name = "Hores acumulades del projecte"
+  ) +
+  
+  labs(
+    title = "Planificació temporal del projecte",
+    subtitle = "Distribució d'hores per fase",
+    color = "Tipus de fase"
+  ) +
+  guides(
+  color = guide_legend(nrow = 2, byrow = TRUE)
+)+
+  
+  theme_minimal(base_size = 13) +
+  theme(
+    axis.title.x = element_text(size = 9),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.title.y = element_blank(),
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold"),
+    plot.subtitle = element_text(color = "grey30")
+  )
 
 ```
 
