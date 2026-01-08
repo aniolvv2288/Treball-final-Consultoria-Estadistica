@@ -2,6 +2,11 @@
 # ----- CREACIÓ DE LA BASE DE DADES UNINT LES PROVÍNCIES -----
 ################################################################################
 
+library(dplyr)
+library(tidyr)
+library(data.table)
+library(tibble)
+
 dades_barcelona <- readRDS("dades_barcelona.rds")
 dades_girona <- readRDS("dades_girona.rds")
 dades_tarragona <- readRDS("dades_tarragona.rds")
@@ -47,4 +52,4 @@ dfcomplet[] <- lapply(dfcomplet, function(x) {
   x
 })
 
-#saveRDS(dfcomplet, "dfcomplet.rds")
+# saveRDS(dfcomplet, "dfcomplet.rds")
