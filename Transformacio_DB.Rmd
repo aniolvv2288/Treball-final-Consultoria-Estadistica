@@ -87,9 +87,7 @@ fac_Edad media, fac_Población, fac_Tamaño_medio_del_hogar, fac_renta_media_bru
 
 #### Edat
 
-Petita descripció:
 ```{r}
-## Summary
 summary(dades[["Edad media de la población"]])
 
 hist(
@@ -119,9 +117,233 @@ dades$fac_Edad_media <- cut(
 
 plot(dades$fac_Edad_media)
 ```
+#### Població
 
 
-### Nombre total de vots de cada partit en cada elecció
+```{r}
+summary(dades$Población)
 
-Gràfic de barres en que l'eix Y sigui nombre de vots, i l'eix X siguin els diferents partits. Cada partit hauria de tenir 5 barres, una per elecció (anys 2015, 2016, 2019_abr, 2019_nov, 2023).
+hist(
+dades$Población,
+main = "Població per secció censal",
+xlab = "Nombre d'habitants",
+breaks = 30
+)
+
+```
+Punts de talls establerts amb quartils:
+
+
+```{r}
+cuts_pob <- quantile(
+dades$Población,
+probs = c(0, 0.25, 0.5, 0.75, 1),
+na.rm = TRUE
+)
+
+dades$fac_Población <- cut(
+dades$Población,
+breaks = cuts_pob,
+include.lowest = TRUE,
+labels = c(
+"Població baixa",
+"Població mitjana-baixa",
+"Població mitjana-alta",
+"Població alta"
+)
+)
+
+cuts_pob
+
+
+```
+
+#### Mida mitjana de la llar
+```{r}
+summary(dades[["Tamaño medio del hogar"]])
+
+hist(
+dades[["Tamaño medio del hogar"]],
+main = "Mida mitjana de la llar",
+xlab = "Persones per llar",
+breaks = 30
+)
+
+```
+
+```{r}
+cuts_hogar <- quantile(
+dades[["Tamaño medio del hogar"]],
+probs = c(0, 1/3, 2/3, 1),
+na.rm = TRUE
+)
+
+dades$fac_Tamaño_medio_del_hogar <- cut(
+dades[["Tamaño medio del hogar"]],
+breaks = cuts_hogar,
+include.lowest = TRUE,
+labels = c(
+"Llars petites",
+"Llars mitjanes",
+"Llars grans"
+)
+)
+
+cuts_hogar
+
+```
+#### Renda bruta mitjana per persona
+
+```{r}
+summary(dades[["Renta bruta media por persona"]])
+
+hist(
+dades[["Renta bruta media por persona"]],
+main = "Renda bruta mitjana per persona",
+xlab = "Renda (€)",
+breaks = 30
+)
+
+```
+Punts de tall establerts amb quartils
+
+```{r}
+cuts_renda_persona <- quantile(
+dades[["Renta bruta media por persona"]],
+probs = seq(0,1,by=0.2),
+na.rm = TRUE
+)
+
+dades$fac_renda_bruta_persona <- cut(
+dades[["Renta bruta media por persona"]],
+breaks = cuts_renda_persona,
+include.lowest = TRUE,
+labels = c(
+"Renda molt baixa",
+"Renda baixa",
+"Renda mitjana",
+"Renda alta",
+"Renda molt alta"
+)
+)
+
+cuts_renda_persona
+
+```
+
+
+#### Renda bruta mitjana per llar
+
+```{r}
+summary(dades[["Renta bruta media por hogar"]])
+
+hist(
+dades[["Renta bruta media por hogar"]],
+main = "Renda bruta mitjana per llar",
+xlab = "Renda (€)",
+breaks = 30
+)
+
+```
+
+Punts de talls establerts amb quartils
+
+```{r}
+cuts_renda_llar <- quantile(
+dades[["Renta bruta media por hogar"]],
+probs = seq(0,1,by=0.2),
+na.rm = TRUE
+)
+
+dades$fac_renda_bruta_llar <- cut(
+dades[["Renta bruta media por hogar"]],
+breaks = cuts_renda_llar,
+include.lowest = TRUE,
+labels = c(
+"Renda molt baixa",
+"Renda baixa",
+"Renda mitjana",
+"Renda alta",
+"Renda molt alta"
+)
+)
+
+cuts_renda_llar
+```
+
+
+
+#### Mitjana de la renta per unitat de consum
+```{r}
+summary(dades[["Media de la renta por unidad de consumo"]])
+
+hist(
+dades[["Media de la renta por unidad de consumo"]],
+main = "Renda mitjana per unitat de consum",
+xlab = "Renda (€)",
+breaks = 30
+)
+
+```
+Punts de talls triats amb quintils
+
+```{r}
+cuts_renda_uc <- quantile(
+dades[["Media de la renta por unidad de consumo"]],
+probs = seq(0, 1, 0.2),
+na.rm = TRUE
+)
+
+dades$fac_renda_media_uc <- cut(
+dades[["Media de la renta por unidad de consumo"]],
+breaks = cuts_renda_uc,
+include.lowest = TRUE,
+labels = c(
+"Renda molt baixa",
+"Renda baixa",
+"Renda mitjana",
+"Renda alta",
+"Renda molt alta"
+)
+)
+
+cuts_renda_uc
+```
+
+#### Mediana de la renta per unitat de consum
+
+```{r}
+summary(dades[["Mediana de la renta por unidad de consumo"]])
+
+hist(
+dades[["Mediana de la renta por unidad de consumo"]],
+main = "Mediana de la renda per unitat de consum",
+xlab = "Renda (€)",
+breaks = 25
+)
+
+```
+
+```{r}
+cuts_mediana_uc <- quantile(
+dades[["Mediana de la renta por unidad de consumo"]],
+probs = seq(0, 1, 0.2),
+na.rm = TRUE
+)
+
+dades$fac_renda_mediana_uc <- cut(
+dades[["Mediana de la renta por unidad de consumo"]],
+breaks = cuts_mediana_uc,
+include.lowest = TRUE,
+labels = c(
+"Renda molt baixa",
+"Renda baixa",
+"Renda mitjana",
+"Renda alta",
+"Renda molt alta"
+)
+)
+
+cuts_mediana_uc
+```
 

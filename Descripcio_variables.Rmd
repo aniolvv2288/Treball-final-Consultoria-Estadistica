@@ -47,8 +47,8 @@ La nostra base de dades final compte amb les següents 37 variables:
   \item \textbf{Fuente de ingreso (pensiones):} Percentatge de llars amb ingressos provinents de pensions.
   \item \textbf{Fuente de ingreso (prestaciones por desempleo):} Percentatge de llars amb ingressos provinents de prestacions d’atur.
   \item \textbf{Fuente de ingreso: salario} Percentatge de llars amb ingressos principals procedents del salari.
-  \item \textbf{Media de la renta por unidad de consumo} Renda mitjana per unitat de consum a la secció censal.
-  \item \textbf{Mediana de la renta por unidad de consumo} Mediana de la renda per unitat de consum.
+  \item \textbf{Media de la renta por unidad de consumo} Renda mitjana de les llars de la secció censal ajustada per la seva mida i composició, calculada mitjançant unitats de consum.
+  \item \textbf{Mediana de la renta por unidad de consumo} Mediana de la renda de les llars ajustada per la seva mida i composició.
   \item \textbf{Renta bruta media por hogar} Renda bruta mitjana per llar.
   \item \textbf{Renta bruta media por persona} Renda bruta mitjana per persona.
   \item \textbf{Renta neta media por hogar} Renda neta mitjana per llar.
