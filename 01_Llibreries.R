@@ -9,4 +9,5 @@ library(tidyr)
 library(stringr)
 library(tibble)
 library(ggplot2)
+library(lattice)
 

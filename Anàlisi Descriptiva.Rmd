@@ -1,0 +1,33 @@
+---
+title: "Anàlisi descriptiva"
+author: "Segon Salmerón Èric (1672984)"
+date: "2026-01-11"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Evolució del total de vots de cada partit
+
+Falta Revisar escala i sobretot sigles (Per exemple, C's i Cs es compten com partits diferents, pasa semblant amb ERC, etc)
+
+```{r}
+# Agregació de vots per partit i elecció
+vots_partit_eleccio <- dades %>%
+  group_by(eleccio, sigles) %>%
+  summarise(
+    vots_totals = sum(vots, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+xyplot(vots_totals~eleccio|sigles, layout = c(3, 3), type = "o", data = vots_partit_eleccio)
+```
+
+## Nombre total de vots dels 15 partits principals en cada elecció
+```{r}
+
+```
+
