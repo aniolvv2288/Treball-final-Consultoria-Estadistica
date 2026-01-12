@@ -11,9 +11,10 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-La nostra base de dades final compte amb les següents 37 variables:
+La nostra base de dades final compte amb les següents 40 variables:
 
 
+(corregir apartat)
 \begin{enumerate}
   \item \textbf{candidatura:} Identificador de la candidatura electoral.
   \item \textbf{proces:} Tipus de procés electoral (En aquest cas només hi ha eleccions generals codificades amb 02).
