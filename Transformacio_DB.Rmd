@@ -208,7 +208,7 @@ dades$ideologia <- factor(
 diccionari_independentisme <- tribble(
 ~sigles,         ~independentista,
 "ERC",           "Sí",
-"CONV./JxCAT",   "Sí",
+"CONV.-JxCAT",   "Sí",
 "CUP-PR",        "Sí",
 "FRONT REPUB",   "Sí",
 
@@ -216,7 +216,7 @@ diccionari_independentisme <- tribble(
 "PP",            "No",
 "CS",            "No",
 "VOX",           "No",
-"ECP/SUMAR",     "No",
+"ECP-SUMAR",     "No",
 "PACMA",         "No"
 )
 
