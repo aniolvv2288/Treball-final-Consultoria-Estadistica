@@ -127,7 +127,7 @@ vots_per_partit <- dades %>%
 
 top10_partits <- vots_per_partit %>%
   arrange(desc(vots_totals)) %>%
-  slice_head(n = 10)
+  slice_head(n = 8)
 
 # Càlcul del percentatge de vots que representa el top 10
 percentatge_top10 <- sum(top10_partits$vots_totals) /
@@ -185,9 +185,8 @@ diccionari_ideologia <- tribble(
 "FRONT REPUB",   "Esquerra",
 "PSC-PSOE",      "Esquerra",
 
-"CS",            "Centre",
-"CONV.-JxCAT",   "Centre",
-
+"CS",            "Dreta",
+"CONV.-JxCAT",   "Dreta",
 "PP",            "Dreta",
 "VOX",           "Dreta"
 )
