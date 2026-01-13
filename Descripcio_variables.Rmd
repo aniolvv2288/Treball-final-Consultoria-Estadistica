@@ -11,7 +11,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-La nostra base de dades final compta amb les següents 43 variables:
+La nostra base de dades final conté les seguents 43 variables:
 
 \begin{enumerate}
 \item \textbf{any:} Any en què se celebra l’elecció general (2015, 2016, 2019 o 2023).

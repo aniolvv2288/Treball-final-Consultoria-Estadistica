@@ -103,7 +103,7 @@ dades$eleccio <- paste0(
   ifelse(dades$mes == "12", "des", NA)))))
 )
 
-#Fem que sigui un factor ordenat
+#Definim factor ordenat
 nivells_eleccio <- unique(dades$eleccio[order(dades$any, dades$mes)])
 
 dades$eleccio <- factor(dades$eleccio, levels = nivells_eleccio, ordered = TRUE)

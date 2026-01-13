@@ -13,7 +13,7 @@ dades <- readRDS("dfcomplet.rds")
 
 dades <- subset(
   dades,
-  select = -c(proces, volta, ccaa, municipi, tipus, candidatura, Districte)
+  select = -c(proces, volta, ccaa, municipi, candidatura, Districte, tipus)
 )
 
 
