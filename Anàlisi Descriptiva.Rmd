@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## DESCRIPCIÓ BASE DE DADES
 ```{r}
-#Millora-ho només incloent les variables mes importants (per exemple, any, mes, nom_partit, i potser d'altres segurament no calen) si pots i ho veus convenient per l'informe, pots mostrar el resultat amb un kabble. Tampoc sé si fa falta calulcar tantes mètriques de cada variable. A mes, describe sembla que no tracta bé les categoriques. Cal descriure també els valors perduts, potser un summary seria millor. 
+#Millorar-ho només incloent les variables mes importants (per exemple, any, mes, nom_partit, i potser d'altres segurament no calen) per l'informe, pots mostrar el resultat amb un kabble. Tampoc sé si fa falta calulcar tantes mètriques de cada variable. A mes, describe sembla que no tracta bé les categoriques. Cal descriure també els valors perduts, potser un summary seria millor. 
 describe(dades)
 ```
 
@@ -22,9 +22,6 @@ describe(dades)
 
 #### Gràfic per partit
 ```{r}
-## Busca possibles millores potser un títol, el format xyplot() m'agrada, pero hi hauria altres maneres de mostrar-ho? Per exemple en un sol gràfic els 8 partits (nombre de vots a l'eix y i eleccio a l'eix x). Prova també amb barres apilades (cada partit amb 5 barres, una per cada elecció)
-
-
 vots_partit_eleccio <- dades %>%
   group_by(eleccio, sigles) %>%
   summarise(
