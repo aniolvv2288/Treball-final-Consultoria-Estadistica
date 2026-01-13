@@ -228,15 +228,16 @@ dades$fac_renda_mediana_uc <- cut(
              "Renda mitjana", "Renda alta", "Renda molt alta")
 )
 
-# Desigualtat (P80/P20) – tercils
-cuts_p80p20 <- quantile(dades$`Distribución de la renta P80/P20`,
-                        probs = c(0, 1/3, 2/3, 1), na.rm = TRUE)
-
-dades$fac_P80_P20 <- cut(
-  dades$`Distribución de la renta P80/P20`,
-  breaks = cuts_p80p20,
+# Desigualtat (indice de gini) – literatura prèvia
+dades$fac_indice_gini <- cut(
+  dades$`Índice de Gini`,
+  breaks = c(-Inf, 25, 35, Inf),
   include.lowest = TRUE,
-  labels = c("Baixa desigualtat", "Desigualtat mitjana", "Alta desigualtat")
+  labels = c(
+    "Baixa desigualtat",
+    "Desigualtat mitjana",
+    "Alta desigualtat"
+  )
 )
 
 # Immigració (població no espanyola – tercils)

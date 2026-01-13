@@ -80,6 +80,6 @@ for (i in seq_along(fitxers)) {
 
 df_total <- do.call(rbind, llista_df)
 
-saveRDS(df_total, "resultats_totals.rds")
+#saveRDS(df_total, "resultats_totals.rds")
 
 

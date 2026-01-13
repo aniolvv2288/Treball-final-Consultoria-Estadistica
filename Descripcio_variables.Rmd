@@ -94,7 +94,7 @@ La nostra base de dades final conté les seguents 43 variables:
 
 \item \textbf{fac\_renda\_mediana\_uc:} Mediana de la renda per unitat de consum categòrica, definida a partir de quintils.
 
-\item \textbf{fac\_P80\_P20:} Versió categòrica de la distribució de la renda (P80/P20), definida a partir de tercils i interpretada com a nivell de desigualtat (baixa, mitjana o alta).
+\item \textbf{fac\_indice\_gini:} Versió categòrica de la distribució de l'índex de Gini, definida a partir de literatura prèvia i interpretada com a nivell de desigualtat (baixa, mitjana o alta).
 
 \item \textbf{Porcentaje\_poblacion\_no\_española:} Percentatge de població no espanyola resident a la secció censal.
 

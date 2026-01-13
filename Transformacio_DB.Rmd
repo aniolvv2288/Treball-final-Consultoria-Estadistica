@@ -186,7 +186,7 @@ diccionari_ideologia <- tribble(
 "PSC/PSOE",      "Esquerra",
 
 "CS",            "Dreta",
-"CONV./JxCAT",   "Dreta",
+"CONV.-JxCAT",   "Dreta",
 "PP",            "Dreta",
 "VOX",           "Dreta"
 )
@@ -212,6 +212,7 @@ diccionari_independentisme <- tribble(
 "CS",            "No",
 "VOX",           "No",
 "ECP/SUMAR",     "No",
+"PACMA",         "No"
 )
 
 dades <- dades %>%
@@ -285,6 +286,7 @@ dades$fac_Edad_media <- cut(
 
 plot(dades$fac_Edad_media)
 ```
+
 #### Població
 
 ```{r}
@@ -298,6 +300,7 @@ breaks = 30
 )
 
 ```
+
 Punts de talls establerts amb quartils:
 
 
@@ -372,6 +375,7 @@ breaks = 30
 )
 
 ```
+
 Punts de tall establerts amb quartils
 
 ```{r}
@@ -452,6 +456,7 @@ breaks = 30
 )
 
 ```
+
 Punts de talls triats amb quintils
 
 ```{r}
@@ -476,6 +481,7 @@ labels = c(
 
 cuts_renda_uc
 ```
+
 
 #### Mediana de la renda per unitat de consum
 
@@ -513,45 +519,44 @@ labels = c(
 
 cuts_mediana_uc
 ```
-#### Distribució de la renda (P80/P20)
+
+#### Distribució de índex de Gini
 
 ```{r}
-#### Distribució de la renda (P80/P20)
-
-summary(dades$`Distribución de la renta P80/P20`)
+summary(dades$`Índice de Gini`)
 
 hist(
-  dades$`Distribución de la renta P80/P20`,
-  main = "Distribució de la renda (P80/P20)",
-  xlab = "Ràtio P80/P20",
-  breaks = 30
+dades$`Índice de Gini`,
+main = "Desigualtat en la distribució de la renda (Índex de Gini)",
+xlab = "Índex de Gini",
+breaks = 30
 )
+
 
 ```
 
 
-Punts de tall triats amb tercils
+Punts de tall triats a partir de llindars habituals en estudis de desigualtat (Falta citar link https://www.numberanalytics.com/blog/complete-guide-wealth-gini-coefficient-index?utm)
+
+$\text{Gini} < 25\% = \text{Poca desigualtat}$
+
+$20\% < \text{Mitjana edat} < 35\% = \text{Moderada desigualtat}$
+
+$\text{Mitjana edat} > 35% = \text{Alta desigualta}$
 
 ```{r}
-cuts_p80p20 <- quantile(
-  dades$`Distribución de la renta P80/P20`,
-  probs = c(0, 1/3, 2/3, 1),
-  na.rm = TRUE
+dades$fac_indice_gini <- cut(
+dades$`Índice de Gini`,
+breaks = c(-Inf, 25, 35, Inf),
+include.lowest = TRUE,
+labels = c(
+"Baixa desigualtat",
+"Desigualtat mitjana",
+"Alta desigualtat"
+)
 )
 
-dades$fac_P80_P20 <- cut(
-  dades$`Distribución de la renta P80/P20`,
-  breaks = cuts_p80p20,
-  include.lowest = TRUE,
-  labels = c(
-    "Baixa desigualtat",
-    "Desigualtat mitjana",
-    "Alta desigualtat"
-  )
-)
-
-cuts_p80p20
-
+plot(dades$fac_indice_gini)
 ```
 
 
@@ -570,7 +575,7 @@ breaks = 25
 )
 ```
 
-Punts de tall triats amb
+Punts de tall triats amb tercils
 
 ```{r}
 cuts_immigracio <- quantile(

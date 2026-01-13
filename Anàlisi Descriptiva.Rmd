@@ -9,13 +9,22 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
-## Evolució del total de vots de cada partit
-
-Falta Revisar escala i sobretot sigles (Per exemple, C's i Cs es compten com partits diferents, pasa semblant amb ERC, etc)
-
+## DESCRIPCIÓ BASE DE DADES
 ```{r}
-# Agregació de vots per partit i elecció
+#Millora-ho només incloent les variables mes importants (per exemple, any, mes, nom_partit, i potser d'altres segurament no calen) si pots i ho veus convenient per l'informe, pots mostrar el resultat amb un kabble. Tampoc sé si fa falta calulcar tantes mètriques de cada variable. A mes, describe sembla que no tracta bé les categoriques. Cal descriure també els valors perduts, potser un summary seria millor. 
+describe(dades)
+```
+
+## PANORAMA ELECTORAL
+
+### Evolució del total de vots de cada partit
+
+
+#### Gràfic per partit
+```{r}
+## Busca possibles millores potser un títol, el format xyplot() m'agrada, pero hi hauria altres maneres de mostrar-ho? Per exemple en un sol gràfic els 8 partits (nombre de vots a l'eix y i eleccio a l'eix x). Prova també amb barres apilades (cada partit amb 5 barres, una per cada elecció)
+
+
 vots_partit_eleccio <- dades %>%
   group_by(eleccio, sigles) %>%
   summarise(
@@ -23,10 +32,230 @@ vots_partit_eleccio <- dades %>%
     .groups = "drop"
   )
 
-xyplot(vots_totals~eleccio|sigles, layout = c(3, 3), type = "o", data = vots_partit_eleccio)
+xyplot(
+  vots_totals ~ eleccio | sigles,
+  data = vots_partit_eleccio,
+  type = "o",
+  layout = c(3, 3),
+  xlab = "Elecció",
+  ylab = "Vots totals",
+  main = "Evolució del vot per partit (2015–2023)",
+  scales = list(x = list(rot = 45))
+)
+```
+#### En un mateix gràfic
+```{r}
+# Paleta de colors per partits
+colors_partits <- c(
+  "PSC/PSOE"    = "#E30613",
+  "PP"          = "#1D4ED8",
+  "ERC"         = "#FFB90F",
+  "CONV./JxCAT" = "#76EEC6",
+  "CUP/PR"      = "#FFD700",
+  "CS"          = "#F97316",
+  "VOX"         = "#00FF00",
+  "ECP/SUMAR"   = "#7C3AED"
+)
+
+
+ggplot(vots_partit_eleccio,
+       aes(x = eleccio, y = vots_totals, group = sigles, color = sigles)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  scale_color_manual(values = colors_partits) +
+  scale_y_continuous(labels = comma) +
+  labs(
+    title = "Evolució del vot total per partit",
+    x = "Elecció",
+    y = "Nombre total de vots",
+    color = "Partit"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
 ```
 
-## Nombre total de vots dels 15 partits principals en cada elecció
+### Evolució del vot per blocs de partits
+
+#### Evolució del vot per blocs ideologics (esquerra-dreta)
+```{r}
+vots_ideologia <- dades %>%
+  group_by(eleccio, ideologia) %>%
+  summarise(vots_totals = sum(vots, na.rm = TRUE), .groups = "drop")
+
+
+ggplot(vots_ideologia,
+       aes(x = eleccio, y = vots_totals, fill = ideologia)) +
+  geom_col(position = "stack") +
+  scale_fill_manual(values = c("Esquerra" = "#DC2626", "Dreta" = "#2563EB")) +
+  scale_y_continuous(labels = comma) +
+  labs(
+    title = "Evolució del vot per blocs ideològics",
+    x = "Elecció",
+    y = "Nombre total de vots",
+    fill = "Ideologia"
+  ) +
+  theme_minimal()
+
+```
+
+
+#### Evolució del vot per blocs independentistes i no independentistes
+```{r}
+vots_indep <- dades %>%
+  group_by(eleccio, independentista) %>%
+  summarise(vots_totals = sum(vots, na.rm = TRUE), .groups = "drop")
+
+ggplot(vots_indep,
+       aes(x = eleccio, y = vots_totals, fill = independentista)) +
+  geom_col() +
+  scale_fill_manual(values = c("Sí" = "#FF3030", "No" = "#00BFFF")) +
+  scale_y_continuous(labels = comma) +
+  labs(
+    title = "Evolució del vot segons posicionament territorial",
+    x = "Elecció",
+    y = "Nombre total de vots",
+    fill = "Independentista"
+  ) +
+  theme_minimal()
+
+```
+
+
+## Característiques de les seccions censals
+
+### Distribucions de les variables socioeconòmiques clau
+
+#### Poblacio
+```{r}
+ggplot(dades, aes(x = Población)) +
+  geom_histogram(bins = 30, fill = "#2563EB", alpha = 0.8) +
+  scale_x_continuous(labels = comma) +
+  labs(
+    title = "Distribució de la població per secció censal",
+    x = "Nombre d'habitants",
+    y = "Nombre de seccions"
+  ) +
+  theme_minimal()
+
+```
+
+
+#### Edat mitjana
+```{r}
+ggplot(dades, aes(x = `Edad media de la población`)) +
+  geom_histogram(bins = 30, fill = "#2563EB", alpha = 0.8) +
+  labs(
+    title = "Distribució de l'edat mitjana de la població",
+    x = "Edat mitjana (anys)",
+    y = "Nombre de seccions"
+  ) +
+  theme_minimal()
+
+```
+
+#### Renda bruta media
+```{r}
+p_persona <- ggplot(dades, aes(x = `Renta bruta media por persona`)) +
+  geom_histogram(bins = 30, fill = "#16A34A", alpha = 0.8) +
+  scale_x_continuous(labels = comma) +
+  labs(
+    title = "Renda bruta mitjana per persona",
+    x = "€",
+    y = "Nombre de seccions"
+  ) +
+  theme_minimal()
+
+p_llar <- ggplot(dades, aes(x = `Renta bruta media por hogar`)) +
+  geom_histogram(bins = 30, fill = "#0EA5E9", alpha = 0.8) +
+  scale_x_continuous(labels = comma) +
+  labs(
+    title = "Renda bruta mitjana per llar",
+    x = "€",
+    y = "Nombre de seccions"
+  ) +
+  theme_minimal()
+
+p_persona + p_llar
+
+```
+
+
+#### Renda por unitat de consum
+
+```{r}
+
+p_mitjana <- ggplot(dades, aes(x = `Media de la renta por unidad de consumo`)) +
+  geom_histogram(bins = 30, fill = "#7C3AED", alpha = 0.8) +
+  scale_x_continuous(labels = comma) +
+  labs(
+    title = "Renda mitjana per unitat de consum",
+    x = "€",
+    y = "Nombre de seccions"
+  ) +
+  theme_minimal()
+
+p_mediana <- ggplot(dades, aes(x = `Mediana de la renta por unidad de consumo`)) +
+  geom_histogram(bins = 30, fill = "#9333EA", alpha = 0.8) +
+  scale_x_continuous(labels = comma) +
+  labs(
+    title = "Mediana de la renda per unitat de consum",
+    x = "€",
+    y = "Nombre de seccions"
+  ) +
+  theme_minimal()
+
+p_mitjana + p_mediana
+
+```
+
+#### Mesures de desigualtat
+
+```{r}
+# Panell de 2 gràfics amb la distribució de l'index gini i la del P80/P20. Estaria bé que l'histograma mostrés amb linies verticals de colors per exemple, quin son els nivells a partir dels quals considerem desigualtat (en l'index gini he fet servir aquest punts de tall breaks = "c(-Inf, 25, 35, Inf), abels = c( "Baixa desigualtat", "Desigualtat mitjana", "Alta desigualtat" 
+
+p_mitjana <- ggplot(dades, aes(x = `Media de la renta por unidad de consumo`)) +
+  geom_histogram(bins = 30, fill = "#7C3AED", alpha = 0.8) +
+  scale_x_continuous(labels = comma) +
+  labs(
+    title = "Renda mitjana per unitat de consum",
+    x = "€",
+    y = "Nombre de seccions"
+  ) +
+  theme_minimal()
+
+p_mediana <- ggplot(dades, aes(x = `Mediana de la renta por unidad de consumo`)) +
+  geom_histogram(bins = 30, fill = "#9333EA", alpha = 0.8) +
+  scale_x_continuous(labels = comma) +
+  labs(
+    title = "Mediana de la renda per unitat de consum",
+    x = "€",
+    y = "Nombre de seccions"
+  ) +
+  theme_minimal()
+
+p_mitjana + p_mediana
+
+```
+
+
+## Vot i context socioecònomic
+
+### Vot segons nivell socioeconòmic (variables categòriques)
+```{r}
+
+```
+
+
+### Ideologia i vot independentista segons variables socioeconòmiques
+```{r}
+
+```
+
+
+### Evolucíó del vot segons variables socioeconòmiques
 ```{r}
 
 ```
