@@ -15,11 +15,11 @@ knitr::opts_chunk$set(echo = TRUE)
 dades<- readRDS("dfcomplet.rds")
 ```
 
+
 ### Eliminació de variables 
 
 Eliminem les seguents variables de la base de dades per ser poc informatives o per que no les usarem en les nostres anàlisis.
 
-(Analitzar i treure candidatura potser)
 
 \begin{enumerate}
   \item \textbf{proces:} Tipus de procés electoral (En aquest cas només hi ha eleccions generals codificades amb 02).
@@ -50,24 +50,25 @@ diccionari_partits <- tribble(
   "ERC-CATSÍ",                "ERC",
   "ERC-SOBIRAN",              "ERC",
   "ERC-SOBIRANISTES",         "ERC",
-  "JxCAT-JUNTS",              "CONV.-JxCAT",
-  "JxCAT - JUNTS",            "CONV.-JxCAT",
-  "CDC",                      "CONV.-JxCAT",
-  "CNV",                      "CONV.-JxCAT",
-  "DL",                       "CONV.-JxCAT",
+  "JxCAT-JUNTS",              "CONV./JxCAT",
+  "JxCAT - JUNTS",            "CONV./JxCAT",
+  "CDC",                      "CONV./JxCAT",
+  "CNV",                      "CONV./JxCAT",
+  "DL",                       "CONV./JxCAT",
   "RECORTES CE",              "RECORTES CERO",
   "RECORTES CERO",            "RECORTES CERO",
   "RECORTES CERO-GRUPO VERDE","RECORTES CERO",
   "RECORTES CERO-GV",         "RECORTES CERO",
   "unio.cat",                 "UNIO",
   "Unio.Cat",                 "UNIO",
-  "ECP",                      "ECP-SUMAR",
-  "ECP-GUANYEM",              "ECP-SUMAR",
-  "EN COMÚ",                  "ECP-SUMAR",
-  "SUMAR - ECP",              "ECP-SUMAR",
-  "MAS PAÍS",                 "EPC-SUMAR",
-  "PSC",                      "PSC-PSOE",
-  "PSC-PSOE",                 "PSC-PSOE"
+  "ECP",                      "ECP/SUMAR",
+  "ECP-GUANYEM",              "ECP/SUMAR",
+  "EN COMÚ",                  "ECP/SUMAR",
+  "SUMAR - ECP",              "ECP/SUMAR",
+  "MAS PAÍS",                 "EPC/SUMAR",
+  "PSC",                      "PSC/PSOE",
+  "PSC-PSOE",                 "PSC/PSOE",
+  "CUP-PR",                   "CUP/PR"
 )
 
 # Aplicació del diccionari
@@ -109,13 +110,13 @@ dades$eleccio <- factor(dades$eleccio, levels = nivells_eleccio, ordered = TRUE)
 
 ```
 
-### Consideració dels 10 partits més importants
-Per tal de centrar l’anàlisi en les forces polítiques amb rellevància real al sistema de partits català, es restringeix la base de dades als 10 partits amb major nombre de vots totals acumulats en el conjunt de les cinc eleccions generals analitzades (2015, 2016, 2019_abr, 2019_nov i 2023).
+### Consideració dels 8 partits més importants
+Per tal de centrar l’anàlisi en les forces polítiques amb rellevància real al sistema de partits català, es restringeix la base de dades als 8 partits amb major nombre de vots totals acumulats en el conjunt de les cinc eleccions generals analitzades (2015, 2016, 2019_abr, 2019_nov i 2023).
 
-Aquest criteri permet reduir la fragmentació causada per candidatures minoritàries i garanteix la comparabilitat longitudinal entre eleccions.
+Aquest criteri permet reduir la fragmentació causada per candidatures minoritàries i garanteix la comparabilitat longitudinal entre eleccions. 
 
 
-#### Verificació dels 10 més rellevants
+#### Verificació dels 8 més rellevants
 ```{r}
 #Vots totals per partit (tota la base de dades)
 vots_per_partit <- dades %>%
@@ -125,20 +126,20 @@ vots_per_partit <- dades %>%
     .groups = "drop"
   )
 
-top10_partits <- vots_per_partit %>%
+top8_partits <- vots_per_partit %>%
   arrange(desc(vots_totals)) %>%
-  slice_head(n = 10)
+  slice_head(n = 8)
 
 # Càlcul del percentatge de vots que representa el top 10
-percentatge_top10 <- sum(top10_partits$vots_totals) /
-  sum(vots_per_partit$vots_totals) * 100
+percentatge_top8 <- sum(top8_partits$vots_totals)/
+  sum(vots_per_partit$vots_totals)*100
 
-# Top 10 vs resta
-resum_top10 <- tibble(
-  grup = c("Top 10 partits", "Resta de partits"),
+# Top 8 vs resta
+resum_top8 <- tibble(
+  grup = c("Top 8 partits", "Resta de partits"),
   vots = c(
-    sum(top10_partits$vots_totals),
-    sum(vots_per_partit$vots_totals) - sum(top10_partits$vots_totals)
+    sum(top8_partits$vots_totals),
+    sum(vots_per_partit$vots_totals) - sum(top8_partits$vots_totals)
   )
 ) %>%
   mutate(
@@ -146,14 +147,14 @@ resum_top10 <- tibble(
   )
 
 # Gràfic de barres
-ggplot(resum_top10, aes(x = grup, y = vots, fill = grup)) +
+ggplot(resum_top8, aes(x = grup, y = vots, fill = grup)) +
   geom_col() +
   geom_text(
     aes(label = paste0(round(percentatge, 1), "%")),
     vjust = -0.5
   ) +
   labs(
-    title = "Pes electoral del Top 10 de partits",
+    title = "Pes electoral del Top 8 de partits",
     x = "",
     y = "Nombre total de vots"
   ) +
@@ -161,33 +162,31 @@ ggplot(resum_top10, aes(x = grup, y = vots, fill = grup)) +
   theme(legend.position = "none")
 
 ```
-
+Veiem també com només considerant els 8 primers ja tenim en compte una proporció molt elevada dels vots totals de la base de dades. 
 
 #### Filtratge de dades
 ```{r}
 dades <- dades %>%
-  filter(sigles %in% top10_partits$sigles)
+  filter(sigles %in% top8_partits$sigles)
 ```
 
 ### Variables de ideologia política (classificació de partits)
 
-Introduïm dues variables categòriques que permeten agrupar els partits polítics segons criteris ideològics en el sistema de partits català. En primer lloc l'eix ideològic esquerra–dreta (només 3 nivells per fer-lo més interpretable), que captura diferències programàtiques en termes econòmics i socials i posteriorment l'eix territorial, que distingeix entre forces independentistes i no independentistes.
+Introduïm dues variables categòriques que permeten agrupar els partits polítics segons criteris ideològics en el sistema de partits català. En primer lloc l'eix ideològic esquerra–dreta (només 2 nivells per fer-lo més interpretable), que captura diferències programàtiques en termes econòmics i socials i posteriorment l'eix territorial, que distingeix entre forces independentistes i no independentistes.
 
-La classificació es basa en l'autodefinició ideològica dels partits. Hem mantingut 3 categories per augmentar la interpretabilitat, i per que com treballem només amb 10 partits no considerem òptim afegir més nivells). Som conscients que això suposa una pèrdua de precisió (per exemple, JxCat seria un Centre-Dreta, PSOE Centre-Esquerra, etc)
+La classificació es basa en l'autodefinició ideològica dels partits. Hem mantingut 2 categories per augmentar la interpretabilitat, i per que com treballem només amb 10 partits no considerem òptim afegir molts nivells. Som conscients que això suposa una pèrdua de precisió (per exemple, JxCat seria un Centre-Dreta, PSOE Centre-Esquerra, etc).
+
 ```{r}
 # Esquerra, centre o dreta
 diccionari_ideologia <- tribble(
 ~sigles,         ~ideologia,
 "ERC",           "Esquerra",
-"ECP-SUMAR",     "Esquerra",
-"CUP-PR",        "Esquerra",
-"PACMA",         "Esquerra",
-"FRONT REPUB",   "Esquerra",
-"PSC-PSOE",      "Esquerra",
+"ECP/SUMAR",     "Esquerra",
+"CUP/PR",        "Esquerra",
+"PSC/PSOE",      "Esquerra",
 
-"CS",            "Centre",
-"CONV.-JxCAT",   "Centre",
-
+"CS",            "Dreta",
+"CONV./JxCAT",   "Dreta",
 "PP",            "Dreta",
 "VOX",           "Dreta"
 )
@@ -197,11 +196,7 @@ dades <- dades %>%
 left_join(diccionari_ideologia, by = "sigles")
 
 ## El definim com a factor ordenat
-dades$ideologia <- factor(
-  dades$ideologia,
-  levels = c("Esquerra", "Centre", "Dreta"),
-  ordered = TRUE
-)
+dades$ideologia <- factor(dades$ideologia,levels = c("Esquerra", "Dreta"))
 
 
 
@@ -210,19 +205,19 @@ diccionari_independentisme <- tribble(
 ~sigles,         ~independentista,
 "ERC",           "Sí",
 "CONV./JxCAT",   "Sí",
-"CUP-PR",        "Sí",
-"FRONT REPUB",   "Sí",
+"CUP/PR",        "Sí",
 
-"PSC-PSOE",      "No",
+"PSC/PSOE",      "No",
 "PP",            "No",
 "CS",            "No",
 "VOX",           "No",
 "ECP/SUMAR",     "No",
-"PACMA",         "No"
 )
 
 dades <- dades %>%
 left_join(diccionari_independentisme, by = "sigles")
+
+dades$independentista<- as.factor(dades$independentista)
 ```
 
 
@@ -282,7 +277,7 @@ $\text{Mitjana edat} > 45 = \text{Secció jove}$
 
 ```{r}
 dades$fac_Edad_media <- cut(
-  dades[["Edad media de la población"]],
+  dades$`Edad media de la población`,
   breaks = c(-Inf, 40, 45, Inf),
   labels = c("Secció jove", "Secció d'edat mitjana", "Secció envellida"),
   include.lowest = TRUE
@@ -332,10 +327,10 @@ cuts_pob
 
 #### Mida mitjana de la llar
 ```{r}
-summary(dades[["Tamaño medio del hogar"]])
+summary(dades$`Tamaño medio del hogar`)
 
 hist(
-dades[["Tamaño medio del hogar"]],
+dades$`Tamaño medio del hogar`,
 main = "Mida mitjana de la llar",
 xlab = "Persones per llar",
 breaks = 30
@@ -345,13 +340,13 @@ breaks = 30
 
 ```{r}
 cuts_hogar <- quantile(
-dades[["Tamaño medio del hogar"]],
+dades$`Tamaño medio del hogar`,
 probs = c(0, 1/3, 2/3, 1),
 na.rm = TRUE
 )
 
 dades$fac_Tamaño_medio_del_hogar <- cut(
-dades[["Tamaño medio del hogar"]],
+dades$`Tamaño medio del hogar`,
 breaks = cuts_hogar,
 include.lowest = TRUE,
 labels = c(
@@ -367,10 +362,10 @@ cuts_hogar
 #### Renda bruta mitjana per persona
 
 ```{r}
-summary(dades[["Renta bruta media por persona"]])
+summary(dades$`Renta bruta media por persona`)
 
 hist(
-dades[["Renta bruta media por persona"]],
+dades$`Renta bruta media por persona`,
 main = "Renda bruta mitjana per persona",
 xlab = "Renda (€)",
 breaks = 30
@@ -381,13 +376,13 @@ Punts de tall establerts amb quartils
 
 ```{r}
 cuts_renda_persona <- quantile(
-dades[["Renta bruta media por persona"]],
+dades$`Renta bruta media por persona`,
 probs = seq(0,1,by=0.2),
 na.rm = TRUE
 )
 
 dades$fac_renda_bruta_persona <- cut(
-dades[["Renta bruta media por persona"]],
+dades$`Renta bruta media por persona`,
 breaks = cuts_renda_persona,
 include.lowest = TRUE,
 labels = c(
@@ -407,10 +402,10 @@ cuts_renda_persona
 #### Renda bruta mitjana per llar
 
 ```{r}
-summary(dades[["Renta bruta media por hogar"]])
+summary(dades$`Renta bruta media por hogar`)
 
 hist(
-dades[["Renta bruta media por hogar"]],
+dades$`Renta bruta media por hogar`,
 main = "Renda bruta mitjana per llar",
 xlab = "Renda (€)",
 breaks = 30
@@ -422,13 +417,13 @@ Punts de talls establerts amb quartils
 
 ```{r}
 cuts_renda_llar <- quantile(
-dades[["Renta bruta media por hogar"]],
+dades$`Renta bruta media por hogar`,
 probs = seq(0,1,by=0.2),
 na.rm = TRUE
 )
 
 dades$fac_renda_bruta_llar <- cut(
-dades[["Renta bruta media por hogar"]],
+dades$`Renta bruta media por hogar`,
 breaks = cuts_renda_llar,
 include.lowest = TRUE,
 labels = c(
@@ -445,12 +440,12 @@ cuts_renda_llar
 
 
 
-#### Mitjana de la renta per unitat de consum
+#### Mitjana de la renda per unitat de consum
 ```{r}
-summary(dades[["Media de la renta por unidad de consumo"]])
+summary(dades$`Media de la renta por unidad de consumo`)
 
 hist(
-dades[["Media de la renta por unidad de consumo"]],
+dades$`Media de la renta por unidad de consumo`,
 main = "Renda mitjana per unitat de consum",
 xlab = "Renda (€)",
 breaks = 30
@@ -461,13 +456,13 @@ Punts de talls triats amb quintils
 
 ```{r}
 cuts_renda_uc <- quantile(
-dades[["Media de la renta por unidad de consumo"]],
+dades$`Media de la renta por unidad de consumo`,
 probs = seq(0, 1, 0.2),
 na.rm = TRUE
 )
 
 dades$fac_renda_media_uc <- cut(
-dades[["Media de la renta por unidad de consumo"]],
+dades$`Media de la renta por unidad de consumo`,
 breaks = cuts_renda_uc,
 include.lowest = TRUE,
 labels = c(
@@ -482,13 +477,13 @@ labels = c(
 cuts_renda_uc
 ```
 
-#### Mediana de la renta per unitat de consum
+#### Mediana de la renda per unitat de consum
 
 ```{r}
-summary(dades[["Mediana de la renta por unidad de consumo"]])
+summary(dades$`Mediana de la renta por unidad de consumo`)
 
 hist(
-dades[["Mediana de la renta por unidad de consumo"]],
+dades$`Mediana de la renta por unidad de consumo`,
 main = "Mediana de la renda per unitat de consum",
 xlab = "Renda (€)",
 breaks = 25
@@ -498,13 +493,13 @@ breaks = 25
 
 ```{r}
 cuts_mediana_uc <- quantile(
-dades[["Mediana de la renta por unidad de consumo"]],
+dades$`Mediana de la renta por unidad de consumo`,
 probs = seq(0, 1, 0.2),
 na.rm = TRUE
 )
 
 dades$fac_renda_mediana_uc <- cut(
-dades[["Mediana de la renta por unidad de consumo"]],
+dades$`Mediana de la renta por unidad de consumo`,
 breaks = cuts_mediana_uc,
 include.lowest = TRUE,
 labels = c(
@@ -517,5 +512,84 @@ labels = c(
 )
 
 cuts_mediana_uc
+```
+#### Distribució de la renda (P80/P20)
+
+```{r}
+#### Distribució de la renda (P80/P20)
+
+summary(dades$`Distribución de la renta P80/P20`)
+
+hist(
+  dades$`Distribución de la renta P80/P20`,
+  main = "Distribució de la renda (P80/P20)",
+  xlab = "Ràtio P80/P20",
+  breaks = 30
+)
+
+```
+
+
+Punts de tall triats amb tercils
+
+```{r}
+cuts_p80p20 <- quantile(
+  dades$`Distribución de la renta P80/P20`,
+  probs = c(0, 1/3, 2/3, 1),
+  na.rm = TRUE
+)
+
+dades$fac_P80_P20 <- cut(
+  dades$`Distribución de la renta P80/P20`,
+  breaks = cuts_p80p20,
+  include.lowest = TRUE,
+  labels = c(
+    "Baixa desigualtat",
+    "Desigualtat mitjana",
+    "Alta desigualtat"
+  )
+)
+
+cuts_p80p20
+
+```
+
+
+#### Població no espanyola
+
+```{r}
+dades$Porcentaje_poblacion_no_española<- 100-dades$`Porcentaje de población española`
+
+summary(dades$Porcentaje_poblacion_no_española)
+
+hist(
+dades$Porcentaje_poblacion_no_española,
+main = "Porcentaje de población no española",
+xlab = "Población no española",
+breaks = 25
+)
+```
+
+Punts de tall triats amb
+
+```{r}
+cuts_immigracio <- quantile(
+  dades$Porcentaje_poblacion_no_española,
+  probs = c(0, 1/3, 2/3, 1),
+  na.rm = TRUE
+)
+
+dades$fac_poblacio_no_espanyola <- cut(
+  dades$Porcentaje_poblacion_no_española,
+  breaks = cuts_immigracio,
+  include.lowest = TRUE,
+  labels = c(
+    "Baixa immigració",
+    "Mitjana immigració",
+    "Alta immigració"
+  )
+)
+
+cuts_immigracio
 ```
 

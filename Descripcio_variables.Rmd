@@ -11,7 +11,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-La nostra base de dades final compte amb les següents 40 variables:
+La nostra base de dades final compta amb les següents 43 variables:
 
 \begin{enumerate}
 \item \textbf{any:} Any en què se celebra l’elecció general (2015, 2016, 2019 o 2023).
@@ -24,9 +24,9 @@ La nostra base de dades final compte amb les següents 40 variables:
 
 \item \textbf{seccio:} Codi identificador de la secció censal.
 
-\item \textbf{vots:} Nombre total de vots obtinguts pel partit polític a la secció censal.
-
 \item \textbf{nom\_partit:} Nom complet del partit polític o candidatura.
+
+\item \textbf{vots:} Nombre total de vots obtinguts pel partit polític a la secció censal.
 
 \item \textbf{Municipi:} Nom del municipi al qual pertany la secció censal.
 
@@ -76,9 +76,9 @@ La nostra base de dades final compte amb les següents 40 variables:
 
 \item \textbf{eleccio:} Variable creada que identifica de manera única cada elecció general mitjançant la combinació d’any i mes (per exemple, \textit{2019\_abr} i \textit{2019\_nov}).
 
-\item \textbf{ideologia:} Variable categòrica que classifica els partits polítics en tres grans blocs ideològics: esquerra, centre i dreta.
+\item \textbf{ideologia:} Variable categòrica que classifica els partits polítics en dos grans blocs ideològics: esquerra i dreta.
 
-\item \textbf{independentista:} Variable dicotòmica que indica si el partit polític té una posició explícitament independentista respecte a Catalunya (Sí / No).
+\item \textbf{independentista:} Variable dicotòmica que indica si el partit polític té una posició explícitament independentista respecte a Catalunya (Sí/No).
 
 \item \textbf{fac\_Edad\_media:} Versió categòrica de l’edat mitjana de la població, amb tres nivells: secció jove, secció d’edat mitjana i secció envellida.
 
@@ -93,5 +93,10 @@ La nostra base de dades final compte amb les següents 40 variables:
 \item \textbf{fac\_renda\_media\_uc:} Renda mitjana per unitat de consum categòrica, definida a partir de quintils.
 
 \item \textbf{fac\_renda\_mediana\_uc:} Mediana de la renda per unitat de consum categòrica, definida a partir de quintils.
-\end{enumerate}
 
+\item \textbf{fac\_P80\_P20:} Versió categòrica de la distribució de la renda (P80/P20), definida a partir de tercils i interpretada com a nivell de desigualtat (baixa, mitjana o alta).
+
+\item \textbf{Porcentaje\_poblacion\_no\_española:} Percentatge de població no espanyola resident a la secció censal.
+
+\item \textbf{fac\_poblacio\_no\_espanyola:} Variable categòrica del percentatge de població no espanyola, definida a partir de tercils (baixa, mitjana o alta immigració).
+\end{enumerate}
