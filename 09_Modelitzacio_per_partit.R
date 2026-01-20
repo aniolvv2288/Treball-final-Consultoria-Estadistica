@@ -37,7 +37,7 @@ dades <- dades %>%
 
 
 ################################################################################
-# ----- MODEL BACKWARD PER PARTIT -----
+# ----- MODEL LINEAL PER PARTIT -----
 ################################################################################
 
 library(car)
@@ -84,7 +84,7 @@ for (partit in partits) {
     filter(sigles == partit) %>%
     droplevels()
   
-  # MODEL 1: interceptes aleatoris per secció i elecció
+  # MODEL 1: iid per secció i elecció
   model1 <- lmer(
     logit_pct_vot ~ `Edat Mitjana` + `Població` +
       `Mida mitjana llar` + `Renda mitjana uc` +
@@ -102,7 +102,7 @@ for (partit in partits) {
     data = dades_partit
   )
   
-  # MODEL 3: només secció
+  # MODEL 3: només iid secció
   model3 <- lmer(
     logit_pct_vot ~ `Edat Mitjana` + `Població` +
       `Mida mitjana llar` + `Renda mitjana uc` +
@@ -111,7 +111,7 @@ for (partit in partits) {
     data = dades_partit
   )
   
-  # MODEL 4: només elecció
+  # MODEL 4: només iid elecció
   model4 <- lmer(
     logit_pct_vot ~ `Edat Mitjana` + `Població` +
       `Mida mitjana llar` + `Renda mitjana uc` +
@@ -133,6 +133,16 @@ for (partit in partits) {
 # ----- AVALUACIÓ DELS MODELS PER CADA PARTIT -----
 ################################################################################
 
+n_param <- function(model) {
+  if (inherits(model, "lm")) {
+    return(length(coef(model)))
+  }
+  if (inherits(model, "lmerMod")) {
+    return(length(fixef(model)) + length(getME(model, "theta")))
+  }
+  return(NA)
+}
+
 icc_from_lmer <- function(model) {
   vc <- as.data.frame(VarCorr(model))
   var_re <- sum(vc$vcov[vc$grp != "Residual"])
@@ -149,39 +159,160 @@ for (partit in partits) {
   cat("Avaluació models per al partit:", partit, "\n")
   cat("==================================\n")
   
-  mods <- models_mixtes[[partit]]
+  mods_mixtes <- models_mixtes[[partit]]
+  mod_lm <- models_final[[partit]]
   
   df_res <- data.frame(
     model = character(),
     AIC = numeric(),
     BIC = numeric(),
-    ICC = numeric(),
+    ICC = character(),
+    n_param = numeric(),
     stringsAsFactors = FALSE
   )
   
-  for (nom_model in names(mods)) {
-    m <- mods[[nom_model]]
+  df_res <- rbind(
+    df_res,
+    data.frame(
+      model = "model0",
+      AIC = AIC(mod_lm),
+      BIC = BIC(mod_lm),
+      ICC = "-",
+      n_param = n_param(mod_lm)
+    )
+  )
+  
+  for (nom_model in names(mods_mixtes)) {
+    m <- mods_mixtes[[nom_model]]
     df_res <- rbind(
       df_res,
       data.frame(
         model = nom_model,
         AIC = AIC(m),
         BIC = BIC(m),
-        ICC = icc_from_lmer(m)
+        ICC = sprintf("%.3f", icc_from_lmer(m)),
+        n_param = n_param(m)
       )
     )
   }
+  
+  colnames(df_res)[colnames(df_res) == "n_param"] <- "# Paràm."
+  colnames(df_res)[colnames(df_res) == "model"] <- "Model"
   
   print(df_res)
   resultats_models[[partit]] <- df_res
 }
 
 
+library(kableExtra)
+
+colors_partits <- c(
+  "CONV./JxCAT" = "#1f78b4",
+  "CS"          = "#ff7f00",
+  "CUP/PR"      = "#e31a1c",
+  "ECP/SUMAR"   = "#6a3d9a",
+  "ERC"         = "#ffd92f",
+  "PP"          = "#377eb8",
+  "PSC/PSOE"    = "#e41a1c",
+  "VOX"         = "#4daf4a"
+)
+
+taules_kable <- list()
+
+for (partit in names(resultats_models)) {
+  
+  df <- resultats_models[[partit]]
+  
+  idx_best <- which.min(df$BIC)
+  
+  df$`Model òptim` <- ifelse(seq_len(nrow(df)) == idx_best, "⭐", "")
+  
+  kbl_tbl <- df %>%
+    kbl(
+      caption = paste("Models per al partit:", partit),
+      align = "c",
+      digits = 3,
+      escape = FALSE
+    ) %>%
+    kable_styling(
+      bootstrap_options = c("striped", "hover", "condensed"),
+      full_width = FALSE,
+      font_size = 15
+    ) %>%
+    row_spec(
+      idx_best,
+      bold = TRUE,
+      color = "white",
+      background = colors_partits[partit]
+    ) %>%
+    add_header_above(
+      c(" " = 1, "Mètriques dels models" = 4, " " = 1),
+      bold = TRUE,
+      background = "#f0f0f0"
+    ) %>%
+    column_spec(1, bold = TRUE) %>%
+    column_spec(ncol(df), width = "3em") %>%
+    kable_classic(html_font = "Helvetica") %>%
+    footnote(
+      general = "⭐ indica el model amb millor BIC.",
+      general_title = "",
+      footnote_as_chunk = TRUE
+    )
+  
+  taules_kable[[partit]] <- kbl_tbl
+}
+
+taules_kable$`CONV./JxCAT`
+
+
 ################################################################################
 # ----- VALIDACIÓ DEL MODEL ESCOLLIT -----
 ################################################################################
 
-# anàlisi i validació del model escollit donats els resultats anteriors
+for (partit in partits) {
+  
+  model_sel <- models_mixtes[[partit]]$model1   # POSAR MODEL ESCOLLIT
+  
+  cat("\n===========================================\n")
+  cat("Validació del model per al partit:", partit, "\n")
+  cat("===========================================\n")
+  
+  # Residus vs ajustats
+  plot(
+    residuals(model_sel, type = "pearson") ~ fitted(model_sel),
+    main = paste("Residus vs Valors ajustats —", partit),
+    xlab = "Valors ajustats",
+    ylab = "Residus (Pearson)"
+  )
+  abline(h = 0, col = "red", lty = 2)
+  
+  # Histograma dels residus
+  hist(
+    residuals(model_sel, type = "pearson"),
+    breaks = 15,
+    main = paste("Histograma dels residus —", partit),
+    xlab = "Residus (Pearson)"
+  )
+  
+  # QQ-plot
+  qqnorm(
+    residuals(model_sel, type = "pearson"),
+    main = paste("QQ-plot dels residus —", partit)
+  )
+  qqline(residuals(model_sel, type = "pearson"), col = "red")
+  
+  # ACF
+  acf(
+    residuals(model_sel, type = "pearson"),
+    main = paste("ACF dels residus —", partit)
+  )
+  
+  # PACF
+  pacf(
+    residuals(model_sel, type = "pearson"),
+    main = paste("PACF dels residus —", partit)
+  )
+}
 
 
 ################################################################################
@@ -204,7 +335,7 @@ for (partit in partits) {
     intercept = FALSE
   ) %>%
     modify_header(label ~ "Variable") %>%
-    modify_caption(paste("Resultats del model mixt per a", partit))
+    modify_caption(paste("Coeficients (OR) per al partit:", partit))
   
   taules_models[[partit]] <- tbl
   
@@ -231,7 +362,7 @@ for (partit in partits) {
     estimate_fun = function(x) scales::percent(plogis(x), accuracy = 0.1)
   ) %>%
     modify_header(label ~ "Variable") %>%
-    modify_caption(paste("Resultats del model mixt (probabilitats) per a", partit))
+    modify_caption(paste("Probabilitats per al partit:", partit))
   
   taules_models[[partit]] <- tbl
   
