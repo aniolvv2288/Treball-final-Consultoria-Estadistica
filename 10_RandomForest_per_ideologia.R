@@ -15,7 +15,7 @@ set.seed(1714)
 
 dades <- readRDS("dades_finals.rds")
 
-dades_quota <- dades %>%
+dadesquota <- dades %>%
   group_by(seccio, any, eleccio) %>%
   mutate(
     total_vots = sum(vots, na.rm = TRUE),
@@ -36,11 +36,11 @@ vars_excloure <- c(
 
 
 
-run_shap_per_eleccio <- function(eleccio_actual, dades_quota, vars_excloure) {
+modelsideologia <- function(eleccio_actual, dadesquota, vars_excloure) {
   
-  cat("\n===== ELECCIÓ:", eleccio_actual, "=====\n")
+  cat("ELECCIÓ:", eleccio_actual)
   
-  df <- dades_quota %>%
+  df <- dadesquota %>%
     filter(eleccio == eleccio_actual) %>%
     drop_na(ideologia) %>%
     select(-all_of(vars_excloure)) %>%
@@ -175,11 +175,11 @@ run_shap_per_eleccio <- function(eleccio_actual, dades_quota, vars_excloure) {
   )
 }
 
-llista_eleccions <- levels(dades_quota$eleccio)
+llistaeleccions <- levels(dadesquota$eleccio)
 
 resultats <- purrr::map(
-  llista_eleccions,
-  ~ run_shap_per_eleccio(.x, dades_quota, vars_excloure)
+  llistaeleccions,
+  ~ modelsideologia(.x, dadesquota, vars_excloure)
 )
 
 
