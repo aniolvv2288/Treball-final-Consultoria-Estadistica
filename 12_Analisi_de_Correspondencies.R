@@ -141,6 +141,29 @@ for (i in seq_along(llista_eleccions)) {
       )
   )
   
+  rows_contrib <- res.ca$row$contrib[, 1:2] %>% 
+    as.data.frame() %>%
+    setNames(c("Dim.1", "Dim.2")) %>%
+    tibble::rownames_to_column("nom") %>%
+    pivot_longer(
+      cols = c(Dim.1, Dim.2),
+      names_to = "Dimensio",
+      values_to = "Contribucio"
+    )
+  
+  print(
+    ggplot(rows_contrib, aes(x = reorder(nom, Contribucio), y = Contribucio, fill = Dimensio)) +
+      geom_col(position = "dodge") +
+      coord_flip() +
+      scale_fill_manual(values = c("Dim.1" = "#00AFBB", "Dim.2" = "#FC4E07")) +
+      labs(
+        title = paste("Contribució dels partits \nEleccions", eleccio_nom),
+        x = "",
+        y = "Contribució (%)"
+      ) +
+      theme_minimal(base_size = 13)
+  )
+  
   print(
     fviz_ca_col(
       res.ca,
@@ -154,5 +177,29 @@ for (i in seq_along(llista_eleccions)) {
         values = c(0, 0.5, 1)
       )
   )
+  
+  cols_contrib <- res.ca$col$contrib[, 1:2] %>% 
+    as.data.frame() %>%
+    setNames(c("Dim.1", "Dim.2")) %>%
+    tibble::rownames_to_column("nom") %>%
+    pivot_longer(
+      cols = c(Dim.1, Dim.2),
+      names_to = "Dimensio",
+      values_to = "Contribucio"
+    )
+  
+  print(
+    ggplot(cols_contrib, aes(x = reorder(nom, Contribucio), y = Contribucio, fill = Dimensio)) +
+      geom_col(position = "dodge") +
+      coord_flip() +
+      scale_fill_manual(values = c("Dim.1" = "#00AFBB", "Dim.2" = "#FC4E07")) +
+      labs(
+        title = paste("Contribució de les variables \nEleccions", eleccio_nom),
+        x = "",
+        y = "Contribució (%)"
+      ) +
+      theme_minimal(base_size = 13)
+  )
+  
 }
 
