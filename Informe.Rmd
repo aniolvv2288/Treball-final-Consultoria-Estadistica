@@ -101,6 +101,22 @@ abstract en anglès
 \newpage
 # 2. Objectius
 
+Principal: 
+
+- distribució de vot per cada partit (i temporal) segons variables socioeconòmiques i demogràfiques (CA, clústering?, RF, LM, LMER)
+
+
+Secundària: 
+
+- distribució de vot per cada partit i temporal segons variables socioeconòmiques i demogràfiques (per ideologia) (amb CA, RF, LM, LMER)
+
+- Evolució del vot respecte les eleccions (Descriptiva, CA, RF)
+
+- Variables influents en la distribució del vot (RF, LM, LMER)
+
+- Furtherwork: predicció x secció censal 
+
+
 \newpage
 # 3. Dades
 
