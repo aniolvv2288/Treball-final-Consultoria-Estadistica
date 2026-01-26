@@ -1,19 +1,52 @@
 ---
-title: "Informe (ja canviarem nom)"
-author:
-  - "Aniol Vilamala Vidal (1665797)"
-  - "Èric Segon Salmerón (1672984)"
-  - "Jordi Anguera Costa (1673351)"
-  - "Daniel Jiménez López (1671067) "
-date: "`r Sys.Date()`"
 output:
   pdf_document:
     latex_engine: pdflatex
-    toc: true
+    toc: false
     toc_depth: 3
+fontsize: 11pt
+geometry: margin=2.5cm
 header-includes:
+  - \usepackage[catalan]{babel}
   - \usepackage{float}
+  - \usepackage{setspace}
+  - \onehalfspacing
 ---
+
+\begin{titlepage}
+\centering
+
+% Logo a la part superior
+\vspace*{1cm}
+\includegraphics[width=6cm]{logo_uab.png}
+
+\vspace*{2cm}
+
+% Títol
+{\Huge \textbf{Anàlisi estadística del comportament electoral a partir de dades censals i factors socioeconòmics}}\\[0.3cm]
+\rule{12cm}{0.4pt}\\[0.3cm]
+{\Large \textit{Estudi aplicat a dades censals i resultats electorals}}\\[2.5cm]
+
+% Autors
+{\Large
+Aniol Vilamala Vidal\\
+Jordi Anguera Costa\\
+Èric Segon Salmerón\\
+Daniel Jiménez López
+}\\[2cm]
+
+\vfill
+
+% Informació institucional
+{\large Grau en Estadística Aplicada}\\
+{\large Universitat Autònoma de Barcelona}\\[1cm]
+
+% Data al peu de pàgina
+{\large Barcelona, 29 de gener de 2026}
+
+\end{titlepage}
+
+\pagenumbering{gobble}  
 
 
 ```{r setup, include=FALSE}
@@ -21,22 +54,74 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE,
                       fig.width = 6, fig.height = 3)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+library(data.table)
+library(dplyr)
+library(readr)
+library(tidyr)
+library(stringr)
+library(tibble)
+library(ggplot2)
+library(lattice)
+library(stringr)
+library(psych)
+library(lattice)
+library(scales)
+library(patchwork)
+library(gplots)
+library(FactoMineR)
+library(factoextra)
 ```
 
-## Including Plots
+\newpage
+\thispagestyle{empty}
+\mbox{}
+\newpage
 
-You can also embed plots, for example:
+\pagenumbering{Roman}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+# Resum
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+resum treball
+
+# Abstract
+
+abstract en anglès
+
+
+\newpage
+\tableofcontents
+\newpage
+
+\pagenumbering{arabic}
+
+
+# 1. Introducció
+
+\newpage
+# 2. Objectius
+
+\newpage
+# 3. Dades
+
+\newpage
+# 4. Materials i mètodes
+
+\newpage
+# 5. Resultats
+
+## 5.1. Anàlisi Exploratòria de Dades
+
+\newpage
+# 6. Validació dels models
+
+\newpage
+# 7. Conclusions
+
+\newpage
+# Annexos
+
+## A. Codi
+
+Per assegurar la traçabilitat i la reproduïbilitat de totes les anàlisis, el projecte s’ha desenvolupat i versionat íntegrament a GitHub. El repositori complet es pot consultar a: [Repositori Github del projecte.](https://github.com/aniolvv2288/Treball-final-Consultoria-Estadistic)
+
