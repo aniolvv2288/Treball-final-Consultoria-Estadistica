@@ -98,23 +98,25 @@ abstract en anglès
 
 # 1. Introducció
 
+
 \newpage
 # 2. Objectius
 
-Principal: 
+## 2.1 Objectiu general
 
-- distribució de vot per cada partit (i temporal) segons variables socioeconòmiques i demogràfiques (CA, clústering?, RF, LM, LMER)
+L'objectiu principal del present treball és comprendre com es configura el comportament electoral de les eleccions generals espanyoles al territori català, explorant de quina manera les característiques socials, econòmiques i demogràfiques contribueixen a explicar la distribució del vot i la seva evolució al llarg del temps.
 
+## 2.2. Objectius específics
 
-Secundària: 
+Per assolir l'objectiu principal s'han establert els següents objectius específics:
 
-- distribució de vot per cada partit i temporal segons variables socioeconòmiques i demogràfiques (per ideologia) (amb CA, RF, LM, LMER)
+- Analitzar com varia el suport als diferents partits polítics en funció de les realitats socials i demogràfiques de cada espai, identificant patrons territorials i dinàmiques compartides.
 
-- Evolució del vot respecte les eleccions (Descriptiva, CA, RF)
+- Examinar les diferències en el comportament electoral segons els grans blocs ideològics, tot observant com els contextos socioeconòmics poden modular les preferències polítiques.
 
-- Variables influents en la distribució del vot (RF, LM, LMER)
+- Descriure l’evolució del vot entre convocatòries, posant atenció als canvis estructurals, les continuïtats i les possibles reconfiguracions del mapa polític.
 
-- Furtherwork: predicció x secció censal 
+- Detectar quins factors semblen tenir un pes més rellevant en la configuració del vot, i com aquests factors interactuen amb la realitat territorial.
 
 
 \newpage
@@ -173,6 +175,8 @@ Finalment, CS se situa pràcticament a l’origen del pla factorial, indicant l�
 
 \newpage
 # 7. Conclusions
+
+- Furtherwork: predicció x secció censal 
 
 \newpage
 # Annexos
