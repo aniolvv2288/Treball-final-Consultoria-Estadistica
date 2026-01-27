@@ -40,9 +40,6 @@ dades <- dades %>%
 # ----- MODEL LINEAL PER PARTIT -----
 ################################################################################
 
-library(car)
-library(MASS)
-
 partits <- c("CONV./JxCAT", "CS", "CUP/PR", "ECP/SUMAR",
              "ERC", "PP", "PSC/PSOE", "VOX")
 
@@ -68,9 +65,6 @@ for (partit in partits) {
 ################################################################################
 # ----- MODELS MIXTES PER PARTIT -----
 ################################################################################
-
-library(lme4)
-library(lmerTest)
 
 models_mixtes <- list()
 
@@ -204,8 +198,6 @@ for (partit in partits) {
 }
 
 
-library(kableExtra)
-
 colors_partits <- c(
   "CONV./JxCAT" = "#1f78b4",
   "CS"          = "#ff7f00",
@@ -319,8 +311,6 @@ for (partit in partits) {
 # ----- VISUALITZACIÓ TAULES PEL MODEL ESCOLLIT -----
 ################################################################################
 
-library(gtsummary)
-
 ## AMB ODDS-RATIO
 
 taules_models <- list()
@@ -346,8 +336,6 @@ for (partit in partits) {
 }
 
 ## AMB PROBABILITAT
-
-library(gtsummary)
 
 taules_models <- list()
 
