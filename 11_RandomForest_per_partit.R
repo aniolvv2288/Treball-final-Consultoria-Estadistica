@@ -28,19 +28,24 @@ dadesquota <- dades %>%
 
 vars_excloure <- c(
   "vots", "total_vots",
-  "any", "mes", "provincia", "districte", "seccio",
+  "any", "mes", "provincia", "districte",
   "Municipi", "Codi_municipi",
   "nom_partit", "eleccio",
   "sigles", "independentista", "ideologia"
 )
 
+ctrl <- trainControl(
+  method = "cv",
+  number = 5,
+  verboseIter = FALSE
+)
 
 
-modelspartits <- function(eleccio_actual, dades_quota, vars_excloure) {
+modelspartits <- function(eleccio_actual, dadesquota, vars_excloure, ctrl) {
   
   cat("\n===== ELECCIÓ:", eleccio_actual, "=====\n")
   
-  dades_eleccio <- dades_quota %>%
+  dades_eleccio <- dadesquota %>%
     filter(as.character(eleccio) == as.character(eleccio_actual))
   
   sigles_llista <- levels(dades_eleccio$sigles)
@@ -60,53 +65,83 @@ modelspartits <- function(eleccio_actual, dades_quota, vars_excloure) {
       return(NULL)
     }
     
-    # Split
-    split <- initial_split(df, prop = 0.8)
+    df$group <- df$seccio
+    
+    #-----------------------
+    # Train / Test split
+    #-----------------------
+    split <- group_initial_split(
+      df,
+      group = group,
+      prop = 0.8
+    )
     train <- training(split)
     test  <- testing(split)
-    
-    Xtrain <- train %>% select(-quota)
+    Xtrain <- train %>% select(-quota, -group, -seccio)
     Ytrain <- train$quota
     
-    Xtest <- test %>% select(-quota)
+    Xtest <- test %>% select(-quota, -group, -seccio)
     Ytest <- test$quota
     
-    rfinicial <- randomForest(
-      x = Xtrain,
-      y = Ytrain,
-      xtest = Xtest,
-      ytest = Ytest,
-      importance = TRUE,
-      seed = 1714
-    ) #si es fa plot d'aixo s'observa que 100 trees son suficients
+    train_df <- bind_cols(Xtrain, quota = Ytrain)
     
-    plot(rfinicial)
-    
-    tuning <- tuneRF(
-      x = Xtrain,
-      y = Ytrain,
-      nTreeTry = 100,
-      stepFactor = 1.5,
-      mtryStart = 5,
-      improve = 0.01,
-      xtest = Xtest,
-      ytest = Ytest,
-      importance = TRUE,
-      seed = 1714
+    #-----------------------
+    # Grid de tuning
+    #-----------------------
+    p <- ncol(Xtrain)
+    grid <- expand.grid(
+      mtry = unique(round(seq(2, sqrt(p), length.out = 5)))
     )
     
-    millormtry <- tuning[which.min(tuning[, 2]), 1]
+    #-----------------------
+    # Caret RF amb CV
+    #-----------------------
+    rf_caret <- train(
+      quota ~ .,
+      data = train_df,
+      method = "rf",
+      trControl = ctrl,
+      tuneGrid = grid,
+      ntree = 100,
+      importance = TRUE
+    )
     
-    # RF regressió
+    best_mtry <- 30
+    print(rf_caret$bestTune)
+    #-----------------------
+    # Model final (ranger)
+    #-----------------------
     rf <- ranger(
       x = Xtrain,
       y = Ytrain,
       num.trees = 100,
-      mtry = millormtry,
+      mtry = best_mtry,
       seed = 1714
     )
     
-    # SHAP sample
+    #-----------------------
+    # Avaluació test
+    #-----------------------
+    preds <- predict(rf, Xtest)$predictions
+    
+    rmse <- RMSE(preds, Ytest)
+    mae  <- MAE(preds, Ytest)
+    r2   <- R2(preds, Ytest)
+    
+    metrics_row <- tibble(
+      eleccio = eleccio_actual,
+      sigla = sigla_actual,
+      n_train = nrow(train),
+      n_test = nrow(test),
+      best_mtry = best_mtry,
+      RMSE = rmse,
+      MAE = mae,
+      R2 = r2
+    )
+    
+    #-----------------------
+    # SHAP
+    #-----------------------
     X_shap <- Xtrain %>% sample_n(min(500, nrow(Xtrain)))
     
     pred_wrapper <- function(object, newdata) {
@@ -176,8 +211,7 @@ modelspartits <- function(eleccio_actual, dades_quota, vars_excloure) {
       theme_minimal(base_size = 14)
     
     list(
-      eleccio = eleccio_actual,
-      sigla = sigla_actual,
+      metrics = metrics_row,
       shap = shaplong,
       plot_global = p1,
       plot_waterfall = p2
@@ -186,15 +220,19 @@ modelspartits <- function(eleccio_actual, dades_quota, vars_excloure) {
 }
 
 
+
 llistaeleccions <- levels(dadesquota$eleccio)
 
 resultats <- map(
   llistaeleccions,
-  ~ modelspartits(.x, dades_quota, vars_excloure)
+  ~ modelspartits(.x, dadesquota, vars_excloure, ctrl)
 )
 
+taulametriques <- resultats %>%
+  flatten() %>%
+  map("metrics") %>%
+  bind_rows()
+
+taulametriques
 
 resultats
-
-
-
