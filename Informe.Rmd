@@ -141,6 +141,31 @@ PER CADA ELECCIÓ INSERTAR ELS GRAFICS CORRESPONDENTS.
 
 ### 5.1.2.1 Eleccions Desembre 2015
 
+BALLONPLOT
+
+El gràfic mostra la intensitat de l’associació entre les categories socio-demogràfiques analitzades i els diferents partits polítics, obtinguda a partir de l’Anàlisi de Correspondències. La mida dels punts representa el grau de sobre- o infrarepresentació de cada combinació respecte a l’escenari d’independència entre variables.
+S’observa que partits com ECP/SUMAR i ERC presenten una associació més marcada amb seccions censals caracteritzades per nivells intermedis de renda i desigualtat, així com amb una presència moderada d’immigració. Per contra, el PSC/PSOE mostra un patró més homogeni i transversal, sense associacions extremes amb cap categoria concreta.
+El PP presenta una associació lleugerament superior amb seccions de renda més elevada, mentre que VOX no ve asociada amb cap categoría ja que en aquestes eleccions no va tenir pràcticament representació. Finalment, CS no mostra associacions clares amb cap perfil socio-demogràfic específic, indicant una distribució més difusa del seu suport electoral.
+
+SCREEPLOT
+
+Es pot observar una bona part de la variança explicada amb les dues dimensions, el que ens indica que es un bón model per trobar diferències entre els partits politics.
+
+Qualitat de representació partits i Qualitat de representació de variables
+
+Es pot veure que tots els partits están fortament representats (cos2>0.8), menys VOX (ja ho sabiem, representació escasa) i ciutadans. Respecte a les modalitats de les categories podem veure que les més ben representades son aquelles de clase mitjana-alta tot i que en general están bé representades.
+
+Contribució de les variables i partits i localització respecte les dimensions.
+
+L’anàlisi de la contribució de les variables mostra que la primera dimensió del Correspondence Analysis està fortament determinada per les categories de renda, especialment pels extrems de renda molt baixa i molt alta, configurant un eix socioeconòmic clar. Aquesta dimensió constitueix el principal factor estructurant del comportament electoral.
+La segona dimensió presenta una contribució més moderada i reflecteix diferències associades a nivells intermedis de renda, desigualtat i, en menor mesura, a característiques demogràfiques com l’edat, permetent una diferenciació més fina dels perfils electorals.
+Pel que fa als partits polítics, CONV./JxCAT i PSC/PSOE són els principals responsables de la configuració de la primera dimensió, mentre que el PP, ECP/SUMAR i ERC contribueixen de manera destacada a la segona. En canvi, CS i VOX presenten una contribució molt reduïda en ambdues dimensions, fet que indica una menor associació amb els perfils socio-demogràfics considerats.
+
+La representació factorial mostra que el PP se situa en una posició central respecte a la primera dimensió, però amb una elevada coordenada positiva en la segona, fet que indica un perfil electoral clarament diferenciat, tot i no estar associat de manera exclusiva a un nivell concret de renda.
+El PSC/PSOE i JxCAT es disposen de manera simètrica al llarg de la primera dimensió, amb una associació respectiva a perfils de renda mitjana-baixa i mitjana-alta, presentant ambdós una diferenciació moderada.
+ERC i ECP/SUMAR apareixen situats en posicions properes a l’origen, especialment en la segona dimensió, la qual cosa suggereix perfils socio-demogràfics més propers a la mitjana del conjunt de seccions censals analitzades.
+Finalment, CS se situa pràcticament a l’origen del pla factorial, indicant l’absència d’un patró socio-demogràfic clar, mentre que VOX apareix desplaçat cap a valors baixos de la primera dimensió, mostrant una associació marcada amb seccions de renda baixa però amb una contribució limitada a l’estructura global de l’espai.
+
 
 
 \newpage
