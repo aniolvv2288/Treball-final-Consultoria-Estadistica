@@ -26,6 +26,8 @@ L’enfocament de l’estudi serà principalment explicatiu, orientat a identifi
 library(knitr)
 library(kableExtra)
 library(dplyr)
+library(ggplot2)
+library(stringr)
 
 # Taula de pressupost
 pressupost <- tibble(
@@ -38,9 +40,9 @@ pressupost <- tibble(
     "6. Interpretació, visualització i validació",
     "7. Redacció de l’informe i presentació"
   ),
-  Hores = c(12, 18, 25, 25, 20, 20, 20),
-  Tarifa = c(90, 100, 120, 130, 150, 120, 120),
-  Cost = c(1080, 1800, 3000, 3250, 3000, 2400, 2400)
+  Hores = c(20, 36, 25, 25, 20, 20, 20),
+  Tarifa = c(90, 100, 120, 130, 130, 120, 120),
+  Cost = c(1800, 3600, 3000, 3250, 3000, 2400, 2400)
 ) %>%
   mutate(
     `Hores dedicades` = paste0(Hores, " h"),
@@ -59,10 +61,10 @@ pressupost_final <- bind_rows(
   pressupost,
   tibble(
     Fase = "TOTAL PROJECTE",
-    `Hores dedicades` = paste0(sum(c(12,18,25,25,20,20,20)), " h"),
+    `Hores dedicades` = paste0(sum(c(20,36,25,25,20,20,20)), " h"),
     `Tarifa aplicada` = "",
     `Cost total` = paste0(
-      format(sum(c(12,18,25,25,20,20,20) * c(90,100,120,130,150,120,120)),
+      format(sum(c(20,36,25,25,20,20,20) * c(90,100,120,130,130,120,120)),
              big.mark = ".", decimal.mark = ","),
       " €"
     )
@@ -94,10 +96,7 @@ kable(
 ```
 
 ```{r timeline_pro, echo=FALSE, message=FALSE, warning=FALSE}
-library(ggplot2)
-library(dplyr)
-library(stringr)
-
+solap<-5
 fases <- tibble(
   fase = c(
     "Recerca prèvia",
@@ -108,7 +107,7 @@ fases <- tibble(
     "Interpretació, visualització i validació",
     "Redacció de l'informe i presentació"
   ),
-  hores = c(12, 18, 25, 25, 20, 20, 20),
+  hores = c(24, 36, 25, 25, 20, 20, 20),
   tipus = c(
     "Planificació",
     "Planificació",
@@ -121,12 +120,27 @@ fases <- tibble(
 ) %>%
   mutate(
     inici = cumsum(lag(hores, default = 0)),
+    
+    inici = if_else(
+      fase == "Modelització estadística secundària",
+      inici - solap,
+      inici
+    ),
+    
+    inici = if_else(
+      row_number() > which(fase == "Modelització estadística secundària"),
+      inici - solap,
+      inici
+    ),
+    
     fi = inici + hores,
+    
     fase_num_raw = paste0(row_number(), ". ", fase),
     fase_num = factor(
-    str_wrap(fase_num_raw, width = 30),                 # 👈 salto de línea
-    levels = rev(str_wrap(fase_num_raw, width = 30))
-))
+      str_wrap(fase_num_raw, width = 30),
+      levels = rev(str_wrap(fase_num_raw, width = 30))
+    )
+  )
 
 
 setmanes <- seq(40, 120, by = 40)
