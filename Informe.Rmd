@@ -126,7 +126,22 @@ Secundària:
 \newpage
 # 5. Resultats
 
+
 ## 5.1. Anàlisi Exploratòria de Dades
+## 5.1.1. Taules de contingència
+
+FICAR LES TAULES DE CONTINGÈNCIA
+
+Per tal de garantir una anàlisi rigorosa, s’ha optat per construir les taules de contingència a partir del nombre de vots obtinguts per cada partit polític, agregada per els vots que compleixen cada combinació de les variables d’interès en cada cas.
+Aquesta decisió metodològica es deu al fet que, si s’utilitzés directament el format de dades del conjunt original, no s’obtindrien diferències significatives, ja que no es tindria en compte el nombre real de vots associats a cada secció censal. En aquest escenari, cada secció seria tractada com una única observació, fet que comportaria una pèrdua d’informació rellevant sobre el nombre de persones que compleixen les condicions analitzades i dificultaria una correcta representació del comportament electoral dels votants.
+
+## 5.1.2. Correspondence Analysis
+
+PER CADA ELECCIÓ INSERTAR ELS GRAFICS CORRESPONDENTS.
+
+### 5.1.2.1 Eleccions Desembre 2015
+
+
 
 \newpage
 # 6. Validació dels models
