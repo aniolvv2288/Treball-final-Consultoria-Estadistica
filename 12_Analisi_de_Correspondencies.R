@@ -39,6 +39,29 @@ noms_curts <- c(
   "fac_renda_media_uc_Renda molt baixa" = "Renda_MoltBaixa"
 )
 
+# noms_curts <- c(
+#   "Edat_Mitjana",
+#   "Edat_Alta",
+#   "Edat_Baixa",
+#   "Pob_Alta",
+#   "Pob_Baixa",
+#   "Pob_MitjanaAlta",
+#   "Pob_MitjanaBaixa",
+#   "Llar_Gran",
+#   "Llar_Mitjana",
+#   "Llar_Petita",
+#   "Gini_Alt",
+#   "Gini_Baix",
+#   "Gini_Mitjà",
+#   "Immig_Alta",
+#   "Immig_Baixa",
+#   "Immig_Mitjana",
+#   "Renda_Alta",
+#   "Renda_Baixa",
+#   "Renda_Mitjana",
+#   "Renda_MoltAlta",
+#   "Renda_MoltBaixa"
+# )
 
 llista_eleccions <- c("2015_des", "2016_jun", "2019_abr", "2019_nov", "2023_jul")
 noms_eleccions   <- c("Desembre 2015", "Juny 2016", "Abril 2019", 
@@ -77,8 +100,12 @@ for (i in seq_along(llista_eleccions)) {
     pivot_wider(names_from = var_cat,
                 values_from = vots_total,
                 values_fill = 0)
-  
-  colnames(matriu_ca) <- recode(colnames(matriu_ca), !!!noms_curts)
+
+  colnames(matriu_ca) <- ifelse(
+    colnames(matriu_ca) %in% names(noms_curts),
+    noms_curts[colnames(matriu_ca)],
+    colnames(matriu_ca)
+  )
   
   matriu_ca <- matriu_ca %>% 
     column_to_rownames("sigles")

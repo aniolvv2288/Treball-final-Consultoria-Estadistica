@@ -226,7 +226,6 @@ p_llar <- ggplot(dades, aes(x = `Renta bruta media por hogar`)) +
   theme_minimal()
 
 p_persona + p_llar
-
 ```
 
 
