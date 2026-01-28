@@ -9,11 +9,88 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## Llibreries
+```{r}
+
+library(data.table)
+library(dplyr)
+library(readr)
+library(tidyr)
+library(stringr)
+library(tibble)
+library(ggplot2)
+library(lattice)
+library(stringr)
+library(psych)
+library(lattice)
+library(scales)
+library(patchwork)
+library(gplots)
+library(FactoMineR)
+library(factoextra)
+library(sf)
+library(here)
+library(leaflet)
+library(htmltools)
+library(knitr)
+
+dades<- readRDS("dades_finals.rds")
+```
+
+
 ## DESCRIPCIÓ BASE DE DADES
 ```{r}
-#Millorar-ho només incloent les variables mes importants (per exemple, any, mes, nom_partit, i potser d'altres segurament no calen) per l'informe, pots mostrar el resultat amb un kabble. Tampoc sé si fa falta calulcar tantes mètriques de cada variable. A mes, describe sembla que no tracta bé les categoriques. Cal descriure també els valors perduts, potser un summary seria millor. 
-describe(dades)
+vars_clau <- dades %>%
+  select(
+    any,
+    mes,
+    eleccio,
+    sigles,
+    ideologia,
+    independentista,
+    provincia,
+    Municipi,
+    Población,
+    `Edad media de la población`,
+    `Renta bruta media por persona`,
+    `Índice de Gini`
+  )
+
+summary_vars <- summary(vars_clau)
+
+kable(
+  summary_vars,
+  caption = "Resum descriptiu de les principals variables de la base de dades"
+)
+
 ```
+
+### Descripció NA
+```{r}
+na_summary <- dades %>%
+  summarise(across(
+    everything(),
+    ~ sum(is.na(.))
+  )) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "variable",
+    values_to = "n_NA"
+  ) %>%
+  mutate(
+    percent_NA = round(n_NA / nrow(dades) * 100, 2)
+  ) %>%
+  filter(n_NA > 0) %>%
+  arrange(desc(percent_NA))
+
+kable(
+  na_summary,
+  col.names = c("Variable", "Nombre de NA", "% de NA"),
+  caption = "Distribució de valors perduts (NA) per variable"
+)
+
+```
+
 
 ## PANORAMA ELECTORAL
 
@@ -242,18 +319,117 @@ p_mitjana + p_mediana
 
 ### Vot segons nivell socioeconòmic (variables categòriques)
 ```{r}
+plot_vot_factor <- function(var, label_x, show_legend = TRUE) {
+  p <- dades %>%
+    filter(!is.na({{ var }})) %>%   
+    group_by({{ var }}, sigles) %>%
+    summarise(vots = sum(vots, na.rm = TRUE), .groups = "drop") %>%
+    group_by({{ var }}) %>%
+    mutate(percentatge = vots / sum(vots) * 100) %>%
+    ggplot(aes(x = {{ var }}, y = percentatge, fill = sigles)) +
+    geom_col() +
+    scale_fill_manual(values = colors_partits) +
+    scale_y_continuous(labels = percent_format(scale = 1)) +
+    labs(
+      x = label_x,
+      y = "% de vots",
+      fill = "Partit"
+    ) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
+  if (!show_legend) {
+    p <- p + theme(legend.position = "none")
+  }
+
+  p
+}
+
+p_renda <- plot_vot_factor(
+  fac_renda_bruta_persona,
+  "Renda bruta per persona",
+  show_legend = FALSE
+)
+
+p_gini <- plot_vot_factor(
+  fac_indice_gini,
+  "Desigualtat (Índex de Gini)",
+  show_legend = FALSE
+)
+
+p_imm <- plot_vot_factor(
+  fac_poblacio_no_espanyola,
+  "Població no espanyola",
+  show_legend = TRUE
+)
+
+p_renda / p_gini / p_imm
+
 
 ```
 
 
 ### Ideologia i vot independentista segons variables socioeconòmiques
 ```{r}
+colors_indep <- c(
+  "Sí" = "#B91C1C",   
+  "No" = "#1D4ED8"    
+)
+
+plot_blocs_factor <- function(var, bloc, label_bloc, label_x) {
+  dades %>%
+    filter(!is.na({{ var }})) %>% 
+    group_by({{ var }}, {{ bloc }}) %>%
+    summarise(vots = sum(vots, na.rm = TRUE), .groups = "drop") %>%
+    group_by({{ var }}) %>%
+    mutate(percentatge = vots / sum(vots) * 100) %>%
+    ggplot(aes(x = {{ var }}, y = percentatge, fill = {{ bloc }})) +
+    geom_col() +
+    scale_y_continuous(labels = percent_format(scale = 1)) +
+    labs(
+      x = label_x,
+      y = "% de vots",
+      fill = label_bloc
+    ) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 30, hjust = 1))
+}
+
+p_ideo_renda <- plot_blocs_factor(
+  fac_renda_bruta_persona,
+  ideologia,
+  "Ideologia",
+  "Renda bruta per persona"
+)
+
+p_indep_renda <- plot_blocs_factor(
+  fac_renda_bruta_persona,
+  independentista,
+  "Independentisme",
+  "Renda bruta per persona"
+) +
+  scale_fill_manual(values = colors_indep)
+
+p_ideo_gini <- plot_blocs_factor(
+  fac_indice_gini,
+  ideologia,
+  "Ideologia",
+  "Desigualtat (Índex de Gini)"
+)
+
+p_indep_imm <- plot_blocs_factor(
+  fac_poblacio_no_espanyola,
+  independentista,
+  "Independentisme",
+  "Població no espanyola"
+) +
+  scale_fill_manual(values = colors_indep)
+
+(p_ideo_renda | p_indep_renda) /
+(p_ideo_gini  | p_indep_imm)
+
 
 ```
 
 
-### Evolucíó del vot segons variables socioeconòmiques
-```{r}
-
-```
 
