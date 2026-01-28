@@ -11,7 +11,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Llibreries
 ```{r}
-
 library(data.table)
 library(dplyr)
 library(readr)
@@ -37,36 +36,10 @@ library(knitr)
 dades<- readRDS("dades_finals.rds")
 ```
 
-
 ## DESCRIPCIÓ BASE DE DADES
-```{r}
-vars_clau <- dades %>%
-  select(
-    any,
-    mes,
-    eleccio,
-    sigles,
-    ideologia,
-    independentista,
-    provincia,
-    Municipi,
-    Población,
-    `Edad media de la población`,
-    `Renta bruta media por persona`,
-    `Índice de Gini`
-  )
 
-summary_vars <- summary(vars_clau)
-
-kable(
-  summary_vars,
-  caption = "Resum descriptiu de les principals variables de la base de dades"
-)
-
-```
-
-### Descripció NA
-```{r}
+#### Descripció NA
+```{r, fig.pos='H'}
 na_summary <- dades %>%
   summarise(across(
     everything(),
@@ -96,9 +69,9 @@ kable(
 
 ### Evolució del total de vots de cada partit
 
-
 #### Gràfic per partit
-```{r}
+Els gràfics surten descentrats en compilar, arreglar-ho.
+```{r, fig.align='center', fig.pos='H'}
 vots_partit_eleccio <- dades %>%
   group_by(eleccio, sigles) %>%
   summarise(
@@ -117,8 +90,8 @@ xyplot(
   scales = list(x = list(rot = 45))
 )
 ```
-#### En un mateix gràfic
-```{r}
+#### Evolució del vot per partit en un mateix gràfic 
+```{r, fig.align='center', fig.pos='H'}
 # Paleta de colors per partits
 colors_partits <- c(
   "PSC/PSOE"    = "#E30613",
@@ -154,7 +127,8 @@ ggplot(vots_partit_eleccio,
 ### Evolució del vot per blocs de partits
 
 #### Evolució del vot per blocs ideologics (esquerra-dreta)
-```{r}
+
+```{r, fig.align='center', fig.pos='H'}
 vots_ideologia <- dades %>%
   group_by(eleccio, ideologia) %>%
   summarise(vots_totals = sum(vots, na.rm = TRUE), .groups = "drop")
@@ -177,7 +151,8 @@ ggplot(vots_ideologia,
 
 
 #### Evolució del vot per blocs independentistes i no independentistes
-```{r}
+
+```{r, fig.align='center', fig.pos='H'}
 vots_indep <- dades %>%
   group_by(eleccio, independentista) %>%
   summarise(vots_totals = sum(vots, na.rm = TRUE), .groups = "drop")
@@ -202,36 +177,34 @@ ggplot(vots_indep,
 
 ### Distribucions de les variables socioeconòmiques clau
 
-#### Poblacio
-```{r}
-ggplot(dades, aes(x = Población)) +
+#### Estructura demogràfica
+```{r, fig.height=4, fig.width=8, fig.pos='H'}
+p_poblacio <- ggplot(dades, aes(x = Población)) +
   geom_histogram(bins = 30, fill = "#2563EB", alpha = 0.8) +
   scale_x_continuous(labels = comma) +
   labs(
-    title = "Distribució de la població per secció censal",
+    title = "Població",
     x = "Nombre d'habitants",
-    y = "Nombre de seccions"
+    y = "Seccions"
   ) +
   theme_minimal()
 
-```
-
-
-#### Edat mitjana
-```{r}
-ggplot(dades, aes(x = `Edad media de la población`)) +
-  geom_histogram(bins = 30, fill = "#2563EB", alpha = 0.8) +
+p_edat <- ggplot(dades, aes(x = dades$`Edad media de la población`)) +
+  geom_histogram(bins = 30, fill = "#1E40AF", alpha = 0.8) +
   labs(
-    title = "Distribució de l'edat mitjana de la població",
-    x = "Edat mitjana (anys)",
-    y = "Nombre de seccions"
+    title = "Edat mitjana",
+    x = "Anys",
+    y = "Seccions"
   ) +
   theme_minimal()
 
+p_poblacio | p_edat
+
 ```
 
-#### Renda bruta media
-```{r}
+
+#### Renda bruta 
+```{r, fig.align='center', fig.pos='H'}
 p_persona <- ggplot(dades, aes(x = `Renta bruta media por persona`)) +
   geom_histogram(bins = 30, fill = "#16A34A", alpha = 0.8) +
   scale_x_continuous(labels = comma) +
@@ -259,7 +232,7 @@ p_persona + p_llar
 
 #### Renda por unitat de consum
 
-```{r}
+```{r, fig.align='center', fig.pos='H'}
 
 p_mitjana <- ggplot(dades, aes(x = `Media de la renta por unidad de consumo`)) +
   geom_histogram(bins = 30, fill = "#7C3AED", alpha = 0.8) +
@@ -287,7 +260,7 @@ p_mitjana + p_mediana
 
 #### Mesures de desigualtat
 
-```{r}
+```{r, fig.align='center', fig.pos='H'}
 # Panell de 2 gràfics amb la distribució de l'index gini i la del P80/P20. Estaria bé que l'histograma mostrés amb linies verticals de colors per exemple, quin son els nivells a partir dels quals considerem desigualtat (en l'index gini he fet servir aquest punts de tall breaks = "c(-Inf, 25, 35, Inf), abels = c( "Baixa desigualtat", "Desigualtat mitjana", "Alta desigualtat" 
 
 p_mitjana <- ggplot(dades, aes(x = `Media de la renta por unidad de consumo`)) +
@@ -318,7 +291,8 @@ p_mitjana + p_mediana
 ## Vot i context socioecònomic
 
 ### Vot segons nivell socioeconòmic (variables categòriques)
-```{r}
+
+```{r, fig.align='center', fig.pos='H'}
 plot_vot_factor <- function(var, label_x, show_legend = TRUE) {
   p <- dades %>%
     filter(!is.na({{ var }})) %>%   
@@ -363,14 +337,29 @@ p_imm <- plot_vot_factor(
   show_legend = TRUE
 )
 
-p_renda / p_gini / p_imm
-
-
+p_edat <- plot_vot_factor(
+  fac_Edad_media,
+  "Edat mitjana",
+  show_legend = TRUE
+)
 ```
 
 
+#### Renda bruta per persona i edat mitjana
+```{r,fig.align='center', fig.pos='H'}
+p_renda | p_edat
+```
+
+
+#### Gini I Immigració
+```{r,fig.align='center', fig.pos='H'}
+p_gini | p_imm
+```
+
 ### Ideologia i vot independentista segons variables socioeconòmiques
-```{r}
+
+Afegir per edat i dividir-ho en 4 panells (un per cada variable de l'eix X. Renda bruta per persona, desigualtat, immigració, edat)
+```{r, fig.align='center', fig.pos='H'}
 colors_indep <- c(
   "Sí" = "#B91C1C",   
   "No" = "#1D4ED8"    
@@ -378,7 +367,7 @@ colors_indep <- c(
 
 plot_blocs_factor <- function(var, bloc, label_bloc, label_x) {
   dades %>%
-    filter(!is.na({{ var }})) %>% 
+    filter(!is.na({{ var }}), !is.na({{ bloc }})) %>% 
     group_by({{ var }}, {{ bloc }}) %>%
     summarise(vots = sum(vots, na.rm = TRUE), .groups = "drop") %>%
     group_by({{ var }}) %>%
@@ -392,9 +381,13 @@ plot_blocs_factor <- function(var, bloc, label_bloc, label_x) {
       fill = label_bloc
     ) +
     theme_minimal() +
-    theme(axis.text.x = element_text(angle = 30, hjust = 1))
+    theme(
+      axis.text.x = element_text(angle = 30, hjust = 1),
+      plot.margin = margin(t = 10, r = 10, b = 20, l = 10)
+    )
 }
 
+# RENDA 
 p_ideo_renda <- plot_blocs_factor(
   fac_renda_bruta_persona,
   ideologia,
@@ -410,11 +403,28 @@ p_indep_renda <- plot_blocs_factor(
 ) +
   scale_fill_manual(values = colors_indep)
 
+# Desigualtat
 p_ideo_gini <- plot_blocs_factor(
   fac_indice_gini,
   ideologia,
   "Ideologia",
   "Desigualtat (Índex de Gini)"
+)
+
+p_indep_gini <- plot_blocs_factor(
+  fac_indice_gini,
+  independentista,
+  "Independentisme",
+  "Desigualtat (Índex de Gini)"
+) +
+  scale_fill_manual(values = colors_indep)
+
+# IMMIGRACIÓ
+p_ideo_imm <- plot_blocs_factor(
+  fac_poblacio_no_espanyola,
+  ideologia,
+  "Ideologia",
+  "Població no espanyola"
 )
 
 p_indep_imm <- plot_blocs_factor(
@@ -425,11 +435,42 @@ p_indep_imm <- plot_blocs_factor(
 ) +
   scale_fill_manual(values = colors_indep)
 
-(p_ideo_renda | p_indep_renda) /
-(p_ideo_gini  | p_indep_imm)
+p_ideo_edat <- plot_blocs_factor(
+  fac_Edad_media,
+  ideologia,
+  "Ideologia",
+  "Edat mitjana"
+)
 
-
+p_indep_edat <- plot_blocs_factor(
+  fac_Edad_media,
+  independentista,
+  "Independentisme",
+  "Edat mitjana"
+) +
+  scale_fill_manual(values = colors_indep)
 ```
 
 
+#### Renda
+```{r, fig.align='center', fig.pos='H'}
+(p_ideo_renda | p_indep_renda) 
+```
+
+#### Gini
+```{r, fig.align='center', fig.pos='H'}
+(p_ideo_gini  | p_indep_gini) 
+```
+
+
+#### Immigració
+```{r, fig.align='center', fig.pos='H'}
+(p_ideo_imm   | p_indep_imm)  
+```
+
+
+#### Edat mitjana
+```{r,fig.align='center', fig.pos='H'}
+(p_ideo_edat  | p_indep_edat)
+```
 
