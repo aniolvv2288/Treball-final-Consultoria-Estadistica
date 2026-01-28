@@ -81,7 +81,12 @@ library(sf)
 library(here)
 library(leaflet)
 library(htmltools)
+library(randomForest)
 library(xgboost)
+library(rsample)
+library(fastshap)
+library(vip)
+library(caret)
 ```
 
 \newpage
@@ -167,7 +172,7 @@ L’anàlisi s’ha realitzat amb el programari `R (versió 4.5)`, que ha permè
 
 La visualització de dades s’ha dut a terme principalment amb `ggplot2` [@ggplot2], complementat amb `lattice` [@lattice], `gplots` [@gplots], `patchwork` [@patchwork] i eines de presentació enriquida com `kableExtra` [@kableExtra] i `gtsummary` [@gtsummary]. Per a la creació de mapes i la gestió d’informació geoespacial s’ha utilitzat el paquet `sf` [@sf], juntament amb `leaflet` [@leaflet] i `htmltools` [@htmltools] per generar visualitzacions interactives. El paquet `here` [@here] ha permès estructurar de manera robusta els camins i l’organització interna del projecte.
 
-Pel que fa a l’anàlisi estadística, s’han aplicat models lineals (`car` [@car], `MASS` [@MASS]) i models lineals mixtos (`lme4` [@lme4], `lmerTest` [@lmerTest]), així com tècniques d’aprenentatge automàtic com els `random forest` i els models `xgboost` [@xgboost], amb el suport del paquet `xgboost` [@xgboost]. L’anàlisi multivariant, i en particular l’anàlisi de correspondències, s’ha realitzat amb `FactoMineR` [@FactoMineR] i `factoextra` [@factoextra], que han facilitat tant el càlcul com la interpretació gràfica dels resultats. Addicionalment, el paquet `psych` [@psych] ha estat útil per a estadístiques descriptives i exploratòries.
+Pel que fa a l’anàlisi estadística, s’han aplicat models lineals (`car` [@car], `MASS` [@MASS]) i models lineals mixtos (`lme4` [@lme4], `lmerTest` [@lmerTest]), així com tècniques d’aprenentatge automàtic com els `random forest` [@rf] i els models `xgboost` [@xgboost], amb el suport dels paquets `caret` [@caret], `fastshap` [@fastshap], `rsample` [@rsample] i `vip` [@vip]. L’anàlisi multivariant, i en particular l’anàlisi de correspondències, s’ha realitzat amb `FactoMineR` [@FactoMineR] i `factoextra` [@factoextra], que han facilitat tant el càlcul com la interpretació gràfica dels resultats. Addicionalment, el paquet `psych` [@psych] ha estat útil per a estadístiques descriptives i exploratòries.
 
 
 \newpage
