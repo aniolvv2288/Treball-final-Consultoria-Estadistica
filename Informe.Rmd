@@ -2,8 +2,8 @@
 output:
   pdf_document:
     latex_engine: pdflatex
-    toc: false
-    toc_depth: 3
+bibliography: referencies.bib
+csl: numeric.csl
 fontsize: 11pt
 geometry: margin=2.5cm
 header-includes:
@@ -23,7 +23,7 @@ header-includes:
 \vspace*{2cm}
 
 % Títol
-{\Huge \textbf{Anàlisi estadística del comportament electoral a partir de dades censals i factors socioeconòmics}}\\[0.3cm]
+{\Huge \textbf{Comportament electoral i evolució a partir de dades censals i factors socioeconòmics i demogràfics}}\\[0.3cm]
 \rule{12cm}{0.4pt}\\[0.3cm]
 {\Large \textit{Estudi aplicat a dades censals i resultats electorals}}\\[2.5cm]
 
@@ -69,8 +69,19 @@ library(lattice)
 library(scales)
 library(patchwork)
 library(gplots)
+library(car)
+library(MASS)
+library(lme4)
+library(lmerTest)
+library(kableExtra)
+library(gtsummary)
 library(FactoMineR)
 library(factoextra)
+library(sf)
+library(here)
+library(leaflet)
+library(htmltools)
+library(xgboost)
 ```
 
 \newpage
@@ -98,6 +109,14 @@ abstract en anglès
 
 # 1. Introducció
 
+El comportament electoral constitueix una de les expressions més visibles de la dinàmica política d’una societat i, alhora, un fenomen profundament arrelat en les seves estructures socials, econòmiques i territorials. L’anàlisi del vot permet no només descriure preferències polítiques, sinó també entendre com les desigualtats socials, les trajectòries històriques i les característiques demogràfiques es tradueixen en patrons polítics diferenciats. En aquest sentit, el territori català ofereix un context especialment rellevant per a l’estudi del comportament electoral, atesa la seva singularitat dins del sistema polític espanyol.
+
+Les eleccions generals espanyoles han estat, en les darreres dècades, un espai de competència política marcat tant per eixos ideològics clàssics com per dinàmiques pròpies del context català. La coexistència de partits d’àmbit estatal i formacions amb una forta implantació territorial, així com la importància creixent del debat territorial, han contribuït a configurar un mapa electoral complex i canviant. Aquestes característiques fan necessari un enfocament analític que combini la dimensió territorial amb l’estudi dels factors socioeconòmics i demogràfics que influeixen en la distribució del vot.
+
+Tradicionalment, una part important dels estudis electorals s’ha centrat en unitats d’anàlisi relativament agregades, com ara municipis o circumscripcions. Tot i la utilitat d’aquests enfocaments, l’ús de dades a una escala més fina, com la secció censal, permet captar amb major precisió les desigualtats internes del territori i identificar patrons que poden quedar ocults en nivells d’agregació superiors. Aquesta aproximació facilita una lectura més detallada del comportament electoral i obre la porta a una anàlisi més acurada de la relació entre context social i vot.
+
+En aquest treball s’analitza el comportament electoral a Catalunya en diverses convocatòries de les eleccions generals espanyoles, amb l’objectiu de comprendre com es distribueix el suport als diferents partits i blocs ideològics, com evoluciona al llarg del temps i quins factors contribueixen de manera més rellevant a explicar aquestes dinàmiques. L’estudi combina informació electoral detallada amb un conjunt ampli de variables socioeconòmiques i demogràfiques.
+
 
 \newpage
 # 2. Objectius
@@ -110,78 +129,410 @@ L'objectiu principal del present treball és comprendre com es configura el comp
 
 Per assolir l'objectiu principal s'han establert els següents objectius específics:
 
-- Analitzar com varia el suport als diferents partits polítics en funció de les realitats socials i demogràfiques de cada espai, identificant patrons territorials i dinàmiques compartides.
+- **Patró territorial del vot**  
+  Analitzar com es distribueix el suport als diferents partits polítics en el territori català, identificant les diferències entre espais i les regularitats que s’hi repeteixen.
 
-- Examinar les diferències en el comportament electoral segons els grans blocs ideològics, tot observant com els contextos socioeconòmics poden modular les preferències polítiques.
+- **Comportament electoral per blocs ideològics**  
+  Examinar com varien les preferències electorals quan s’agrupen els partits en grans blocs ideològics, i fins a quin punt les condicions socials i econòmiques influeixen en aquestes diferències.
 
-- Descriure l’evolució del vot entre convocatòries, posant atenció als canvis estructurals, les continuïtats i les possibles reconfiguracions del mapa polític.
+- **Dinàmica temporal del vot**  
+  Descriure com evoluciona el comportament electoral entre diferents convocatòries, posant atenció als canvis, continuïtats i possibles reconfiguracions del mapa polític català.
 
-- Detectar quins factors semblen tenir un pes més rellevant en la configuració del vot, i com aquests factors interactuen amb la realitat territorial.
+- **Factors determinants del vot**  
+  Identificar quins elements socioeconòmics i demogràfics tenen un pes més rellevant en la configuració del vot i com interactuen amb les particularitats territorials.
 
 
 \newpage
 # 3. Dades
 
+D’una banda, les dades referents als vots als partits sobre cada secció censals estan disponibles a l'àrea de descarregues de les eleccions de la pàgina del Ministeri de l’Interior [@ministerioInterior_descargas]. Cada resultat electoral conté un fitxer ZIP amb 10 fitxers d'extensió .DAT, així com 1 fitxer .doc i 1 .rtf. Aquests dos últims expliquen la codificació de cada fitxer i en descriuen el contingut. Els que comencen per “10” contenen la informació de vots per partit a cada secció censal, mentre que els que comencen per “03” inclouen un diccionari amb les sigles de cada partit i el seu nom complet.
+
+A partir del fitxer comprimit del Ministeri de l’Interior, vam transformar les dades electorals administratives en una base de dades apta per a l’anàlisi a escala de secció censal. Els fitxers del tipus “10” contenien els vots per candidatura en format de longitud fixa, fet que va requerir consultar la documentació tècnica per interpretar correctament cada camp. Un cop entès el format, vam desenvolupar un script en R per llegir i estructurar aquestes dades.
+
+Paral·lelament, els fitxers “03” proporcionaven el diccionari de candidatures, també en format de longitud fixa, i van ser essencials per identificar la sigla i el nom complet de cada partit. Com que els codis de candidatura variaven entre eleccions, va ser necessari enllaçar, per a cada procés electoral, els fitxers “10” amb el seu corresponent “03”. Només després d’aquest pas vam poder integrar totes les eleccions en una mateixa base de dades.
+
+\vspace{0.75cm}
+
+D'altra banda, pel que fa a les variables socioeconòmiques i demogràfiques, les vam obtenir de l’INE, concretament de l’apartat dedicat a les condicions de vida per secció censal [@INE_condiciones_vida]. Per a cada província catalana vam descarregar quatre bases de dades complementàries, cadascuna amb un conjunt específic d’indicadors: una amb l’índex de Gini i la ràtio 80/20 de distribució de la renda; una altra amb la procedència dels ingressos; una tercera amb variables demogràfiques com l’edat mitjana o el percentatge de població espanyola resident; i una darrera amb dades de renda mitjana —per unitat de consum, personal i de la llar.
+
+En el cas de les comarques gironines, el tractament va requerir una atenció addicional, ja que la codificació de les seccions censals no seguia exactament el mateix format que a la resta del territori.
+
+Un cop harmonitzades, totes les bases de dades es van integrar en un únic conjunt, agrupant-les per any i secció censal.
+
+
 \newpage
 # 4. Materials i mètodes
+
+L’anàlisi s’ha realitzat amb el programari `R (versió 4.5)`, que ha permès gestionar, transformar i modelitzar les dades de manera eficient. Per al tractament i la manipulació de dades s’han utilitzat paquets del conjunt `tidyverse` [@tidyverse] i altres llibreries especialitzades, com `data.table` [@data.table], `dplyr` [@dplyr], `readr` [@readr], `tidyr` [@tidyr], `stringr` [@stringr], `tibble` [@tibble] i `scales` [@scales], que han facilitat la neteja, reorganització i harmonització de les diferents fonts d’informació.
+
+La visualització de dades s’ha dut a terme principalment amb `ggplot2` [@ggplot2], complementat amb `lattice` [@lattice], `gplots` [@gplots], `patchwork` [@patchwork] i eines de presentació enriquida com `kableExtra` [@kableExtra] i `gtsummary` [@gtsummary]. Per a la creació de mapes i la gestió d’informació geoespacial s’ha utilitzat el paquet `sf` [@sf], juntament amb `leaflet` [@leaflet] i `htmltools` [@htmltools] per generar visualitzacions interactives. El paquet `here` [@here] ha permès estructurar de manera robusta els camins i l’organització interna del projecte.
+
+Pel que fa a l’anàlisi estadística, s’han aplicat models lineals (`car` [@car], `MASS` [@MASS]) i models lineals mixtos (`lme4` [@lme4], `lmerTest` [@lmerTest]), així com tècniques d’aprenentatge automàtic com els `random forest` i els models `xgboost` [@xgboost], amb el suport del paquet `xgboost` [@xgboost]. L’anàlisi multivariant, i en particular l’anàlisi de correspondències, s’ha realitzat amb `FactoMineR` [@FactoMineR] i `factoextra` [@factoextra], que han facilitat tant el càlcul com la interpretació gràfica dels resultats. Addicionalment, el paquet `psych` [@psych] ha estat útil per a estadístiques descriptives i exploratòries.
+
 
 \newpage
 # 5. Resultats
 
+## 5.1 Anàlisi Exploratòria de Dades (AED)
 
-## 5.1. Anàlisi Exploratòria de Dades
-## 5.1.1. Taules de contingència
+INTRODUCCIÓ ÈRIC-TEXTO
 
-FICAR LES TAULES DE CONTINGÈNCIA
 
-Per tal de garantir una anàlisi rigorosa, s’ha optat per construir les taules de contingència a partir del nombre de vots obtinguts per cada partit polític, agregada per els vots que compleixen cada combinació de les variables d’interès en cada cas.
-Aquesta decisió metodològica es deu al fet que, si s’utilitzés directament el format de dades del conjunt original, no s’obtindrien diferències significatives, ja que no es tindria en compte el nombre real de vots associats a cada secció censal. En aquest escenari, cada secció seria tractada com una única observació, fet que comportaria una pèrdua d’informació rellevant sobre el nombre de persones que compleixen les condicions analitzades i dificultaria una correcta representació del comportament electoral dels votants.
+## 5.2 Anàlisi de correspondències (CA) {#sec:resultats_ca}
 
-## 5.1.2. Correspondence Analysis
+Els gràfics de qualitat de representació ($cos^2$) i de contribució a les dimensions principals es troben a la secció \nameref{sec:grafics_compl_ca}. A partir d’aquí, es dona per suposat que qualsevol referència a aquests aspectes visuals remet a aquesta secció.
 
-PER CADA ELECCIÓ INSERTAR ELS GRAFICS CORRESPONDENTS.
+### 5.2.1 Eleccions desembre 2015
 
-### 5.1.2.1 Eleccions Desembre 2015
+```{r}
+################################################################################
+# ----- INCORPORACIÓ DADES -----
+################################################################################
 
-BALLONPLOT
+dades <- readRDS("dades_finals.rds") %>% 
+  na.omit()
 
-El gràfic mostra la intensitat de l’associació entre les categories socio-demogràfiques analitzades i els diferents partits polítics, obtinguda a partir de l’Anàlisi de Correspondències. La mida dels punts representa el grau de sobre- o infrarepresentació de cada combinació respecte a l’escenari d’independència entre variables.
-S’observa que partits com ECP/SUMAR i ERC presenten una associació més marcada amb seccions censals caracteritzades per nivells intermedis de renda i desigualtat, així com amb una presència moderada d’immigració. Per contra, el PSC/PSOE mostra un patró més homogeni i transversal, sense associacions extremes amb cap categoria concreta.
-El PP presenta una associació lleugerament superior amb seccions de renda més elevada, mentre que VOX no ve asociada amb cap categoría ja que en aquestes eleccions no va tenir pràcticament representació. Finalment, CS no mostra associacions clares amb cap perfil socio-demogràfic específic, indicant una distribució més difusa del seu suport electoral.
+vars_socio <- c(
+  "fac_Edad_media",
+  "fac_Población",
+  "fac_Tamaño_medio_del_hogar",
+  "fac_renda_media_uc",
+  "fac_indice_gini",
+  "fac_poblacio_no_espanyola"
+)
 
-SCREEPLOT
+noms_curts <- c(
+  "fac_Edad_media_Secció d'edat mitjana" = "Edat_Mitjana",
+  "fac_Edad_media_Secció envellida" = "Edat_Alta",
+  "fac_Edad_media_Secció jove" = "Edat_Baixa",
+  "fac_Población_Població alta" = "Pob_Alta",
+  "fac_Población_Població baixa" = "Pob_Baixa",
+  "fac_Población_Població mitjana-alta" = "Pob_MitjanaAlta",
+  "fac_Población_Població mitjana-baixa" = "Pob_MitjanaBaixa",
+  "fac_Tamaño_medio_del_hogar_Llars grans" = "Llar_Gran",
+  "fac_Tamaño_medio_del_hogar_Llars mitjanes" = "Llar_Mitjana",
+  "fac_Tamaño_medio_del_hogar_Llars petites" = "Llar_Petita",
+  "fac_indice_gini_Alta desigualtat" = "Gini_Alt",
+  "fac_indice_gini_Baixa desigualtat" = "Gini_Baix",
+  "fac_indice_gini_Desigualtat mitjana" = "Gini_Mitjà",
+  "fac_poblacio_no_espanyola_Alta immigració" = "Immig_Alta",
+  "fac_poblacio_no_espanyola_Baixa immigració" = "Immig_Baixa",
+  "fac_poblacio_no_espanyola_Mitjana immigració" = "Immig_Mitjana",
+  "fac_renda_media_uc_Renda alta" = "Renda_Alta",
+  "fac_renda_media_uc_Renda baixa" = "Renda_Baixa",
+  "fac_renda_media_uc_Renda mitjana" = "Renda_Mitjana",
+  "fac_renda_media_uc_Renda molt alta" = "Renda_MoltAlta",
+  "fac_renda_media_uc_Renda molt baixa" = "Renda_MoltBaixa"
+)
 
-Es pot observar una bona part de la variança explicada amb les dues dimensions, el que ens indica que es un bón model per trobar diferències entre els partits politics.
 
-Qualitat de representació partits i Qualitat de representació de variables
+llista_eleccions <- c("2015_des", "2016_jun", "2019_abr", "2019_nov", "2023_jul")
+noms_eleccions   <- c("Desembre 2015", "Juny 2016", "Abril 2019", 
+                      "Novembre 2019", "Juliol 2023")
 
-Es pot veure que tots els partits están fortament representats (cos2>0.8), menys VOX (ja ho sabiem, representació escasa) i ciutadans. Respecte a les modalitats de les categories podem veure que les més ben representades son aquelles de clase mitjana-alta tot i que en general están bé representades.
+################################################################################
+# ----- CA I RESULTATS -----
+################################################################################
 
-Contribució de les variables i partits i localització respecte les dimensions.
+plots_ca <- list()
 
-L’anàlisi de la contribució de les variables mostra que la primera dimensió del Correspondence Analysis està fortament determinada per les categories de renda, especialment pels extrems de renda molt baixa i molt alta, configurant un eix socioeconòmic clar. Aquesta dimensió constitueix el principal factor estructurant del comportament electoral.
-La segona dimensió presenta una contribució més moderada i reflecteix diferències associades a nivells intermedis de renda, desigualtat i, en menor mesura, a característiques demogràfiques com l’edat, permetent una diferenciació més fina dels perfils electorals.
-Pel que fa als partits polítics, CONV./JxCAT i PSC/PSOE són els principals responsables de la configuració de la primera dimensió, mentre que el PP, ECP/SUMAR i ERC contribueixen de manera destacada a la segona. En canvi, CS i VOX presenten una contribució molt reduïda en ambdues dimensions, fet que indica una menor associació amb els perfils socio-demogràfics considerats.
+for (i in seq_along(llista_eleccions)) {
 
-La representació factorial mostra que el PP se situa en una posició central respecte a la primera dimensió, però amb una elevada coordenada positiva en la segona, fet que indica un perfil electoral clarament diferenciat, tot i no estar associat de manera exclusiva a un nivell concret de renda.
-El PSC/PSOE i JxCAT es disposen de manera simètrica al llarg de la primera dimensió, amb una associació respectiva a perfils de renda mitjana-baixa i mitjana-alta, presentant ambdós una diferenciació moderada.
-ERC i ECP/SUMAR apareixen situats en posicions properes a l’origen, especialment en la segona dimensió, la qual cosa suggereix perfils socio-demogràfics més propers a la mitjana del conjunt de seccions censals analitzades.
-Finalment, CS se situa pràcticament a l’origen del pla factorial, indicant l’absència d’un patró socio-demogràfic clar, mentre que VOX apareix desplaçat cap a valors baixos de la primera dimensió, mostrant una associació marcada amb seccions de renda baixa però amb una contribució limitada a l’estructura global de l’espai.
+  eleccio_id  <- llista_eleccions[i]
+  eleccio_nom <- noms_eleccions[i]
 
+  message("------------------------------------------------------------")
+  message("Processant elecció: ", eleccio_nom)
+  message("------------------------------------------------------------")
+
+  dades_e <- dades %>% 
+    filter(eleccio == eleccio_id) %>%
+    select(eleccio, seccio, sigles, vots, all_of(vars_socio))
+
+  matriu_ca <- dades_e %>%
+    pivot_longer(cols = all_of(vars_socio),
+                 names_to = "variable",
+                 values_to = "categoria") %>%
+    unite("var_cat", variable, categoria, sep = "_") %>%
+    group_by(sigles, var_cat) %>%
+    summarise(vots_total = sum(vots), .groups = "drop") %>%
+    pivot_wider(names_from = var_cat,
+                values_from = vots_total,
+                values_fill = 0)
+
+  colnames(matriu_ca) <- ifelse(
+    colnames(matriu_ca) %in% names(noms_curts),
+    noms_curts[colnames(matriu_ca)],
+    colnames(matriu_ca)
+  )
+
+  matriu_ca <- matriu_ca %>% 
+    column_to_rownames("sigles")
+
+  matriu_ca <- matriu_ca[rowSums(matriu_ca) > 0, ]
+
+  res.ca <- CA(matriu_ca, graph = FALSE)
+
+  plots_ca[[eleccio_nom]] <- list()
+
+  plots_ca[[eleccio_nom]]$biplot <- fviz_ca_biplot(
+    res.ca,
+    repel = TRUE,
+    label = "all",
+    col.row = "black",
+    col.col = "blue",
+    title = paste("CA - Partits i factors socioeconòmics (", eleccio_nom, ")")
+  )
+
+  plots_ca[[eleccio_nom]]$rows_cos2 <- fviz_ca_row(
+    res.ca,
+    col.row = "cos2",
+    repel = TRUE,
+    title = paste("Qualitat representació partits -", eleccio_nom)
+  ) +
+    scale_color_gradientn(
+      colours = c("#00AFBB", "#E7B800", "#FC4E07"),
+      limits = c(0, 1),
+      values = c(0, 0.5, 1)
+    )
+
+  rows_contrib <- res.ca$row$contrib[, 1:2] %>%
+    as.data.frame() %>%
+    setNames(c("Dim.1", "Dim.2")) %>%
+    tibble::rownames_to_column("nom") %>%
+    pivot_longer(cols = c(Dim.1, Dim.2),
+                 names_to = "Dimensio",
+                 values_to = "Contribucio")
+
+  plots_ca[[eleccio_nom]]$rows_contrib <- ggplot(
+    rows_contrib,
+    aes(x = reorder(nom, Contribucio), y = Contribucio, fill = Dimensio)
+  ) +
+    geom_col(position = "dodge") +
+    coord_flip() +
+    scale_fill_manual(values = c("Dim.1" = "#00AFBB", "Dim.2" = "#FC4E07")) +
+    labs(
+      title = paste("Contribució dels partits \nEleccions", eleccio_nom),
+      x = "",
+      y = "Contribució (%)"
+    ) +
+    theme_minimal(base_size = 13)
+
+  plots_ca[[eleccio_nom]]$cols_cos2 <- fviz_ca_col(
+    res.ca,
+    col.col = "cos2",
+    repel = TRUE,
+    title = paste("Qualitat representació variables -", eleccio_nom)
+  ) +
+    scale_color_gradientn(
+      colours = c("#00AFBB", "#E7B800", "#FC4E07"),
+      limits = c(0, 1),
+      values = c(0, 0.5, 1)
+    )
+
+  cols_contrib <- res.ca$col$contrib[, 1:2] %>%
+    as.data.frame() %>%
+    setNames(c("Dim.1", "Dim.2")) %>%
+    tibble::rownames_to_column("nom") %>%
+    pivot_longer(cols = c(Dim.1, Dim.2),
+                 names_to = "Dimensio",
+                 values_to = "Contribucio")
+
+  plots_ca[[eleccio_nom]]$cols_contrib <- ggplot(
+    cols_contrib,
+    aes(x = reorder(nom, Contribucio), y = Contribucio, fill = Dimensio)
+  ) +
+    geom_col(position = "dodge") +
+    coord_flip() +
+    scale_fill_manual(values = c("Dim.1" = "#00AFBB", "Dim.2" = "#FC4E07")) +
+    labs(
+      title = paste("Contribució de les variables \nEleccions", eleccio_nom),
+      x = "",
+      y = "Contribució (%)"
+    ) +
+    theme_minimal(base_size = 13)
+}
+```
+
+```{r ca2015, fig.cap="CA de les eleccions del desembre del 2015.", fig.width=6, fig.height=4, fig.align='center', fig.pos='H'}
+plots_ca$`Desembre 2015`$biplot
+```
+
+Com mostra la Figura 1, les dues primeres dimensions expliquen el 88,9% de la variabilitat total, cosa que permet identificar amb claredat les associacions entre partits polítics i variables socioeconòmiques. Tot i això, VOX i Cs presenten una qualitat de representació molt baixa —inferior a 0,20 en termes de $cos^2$—, fet que limita la fiabilitat de la seva posició en el mapa factorial i en dificulta la interpretació.
+
+
+L’anàlisi factorial mostra (EXPLICAR LA CONTRIBUCIÓ DELS PARTIS I VARIABLES DE FORMA RÀPIDA)
+
+
+EXPLICAR INTERPRETACIÓ DEL CA COM A TAL: PARTITS MÉS PRÒXIMS A VARIABLES I DIVISIÓ DEL PLA.
+
+
+### 5.2.2 Eleccions juny 2016
+
+```{r ca2016, fig.cap="CA de les eleccions del juny del 2016.", fig.width=6, fig.height=4, fig.align='center', fig.pos='H'}
+plots_ca$`Juny 2016`$biplot
+```
+
+text
+
+### 5.2.3 Eleccions abril 2019
+
+```{r ca2019_1, fig.cap="CA de les eleccions de l'abril del 2019.", fig.width=6, fig.height=4, fig.align='center', fig.pos='H'}
+plots_ca$`Abril 2019`$biplot
+```
+
+text
+
+### 5.2.4 Eleccions novembre 2019
+
+```{r ca2019_2, fig.cap="CA de les eleccions del novemebre del 2019", fig.width=6, fig.height=4, fig.align='center', fig.pos='H'}
+plots_ca$`Novembre 2019`$biplot
+```
+
+text
+
+### 5.2.5 Eleccions juliol 2023
+
+```{r ca2023, fig.cap="CA de les eleccions del juliol del 2023.", fig.width=6, fig.height=4, fig.align='center', fig.pos='H'}
+plots_ca$`Juliol 2023`$biplot
+```
+
+text
+
+## 5.3 Modelització estadística
+
+### 5.3.1 Selecció de models
+
+### 5.3.2 Model òptim
+
+
+## 5.4 Models d'Aprenentatge Automàtic
+
+### 5.4.1 Random Forest (RF)
+
+### 5.4.2 XGBoost
 
 
 \newpage
 # 6. Validació dels models
 
+## 6.1 Estratègia de validació
+
+Explicar com validem cada model i les mètriques que tenim en compte
+
+## 6.2 Validació del model lineal òptim
+
+## 6.3 Validació del RF
+
+## 6.4 Validació del XGBoost
+
+
 \newpage
 # 7. Conclusions
 
-- Furtherwork: predicció x secció censal 
+- posar conclusions finals
+
+- Furtherwork: predicció x secció censal + noves coses que pensem 
 
 \newpage
+
+# Referències
+
+::: {#refs}
+:::
+
+\newpage
+
 # Annexos
 
-## A. Codi
+## A. Resultats CA {#sec:grafics_compl_ca}
 
-Per assegurar la traçabilitat i la reproduïbilitat de totes les anàlisis, el projecte s’ha desenvolupat i versionat íntegrament a GitHub. El repositori complet es pot consultar a: [Repositori Github del projecte.](https://github.com/aniolvv2288/Treball-final-Consultoria-Estadistic)
+Els següents gràfics mostren la qualitat de representació dels partits i de les variables socioeconòmiques i demogràfiques dins del pla factorial per cada elecció, així com la contribuació de cada perfil fila i columna a les dimensions principals. L'explicació completa es troba a l'apartat \nameref{sec:resultats_ca}. 
+
+### A.1 Eleccions desembre 2015 
+
+```{r, fig.cap="Qualitat de representació dels partits i les variables a les eleccions del desembre del 2015.", fig.width=12, fig.height=4.5, fig.pos='H'}
+p1 <- plots_ca$`Desembre 2015`$rows_cos2
+p2 <- plots_ca$`Desembre 2015`$cols_cos2
+
+p1+p2
+```
+
+```{r, fig.cap="Contribució dels partits i les variables a les dimensions principals per les eleccions del desembre del 2015.", fig.width=12, fig.height=5, fig.pos='H'}
+p1 <- plots_ca$`Desembre 2015`$rows_contrib
+p2 <- plots_ca$`Desembre 2015`$cols_contrib
+
+p1+p2
+```
+
+
+### A.2 Eleccions juny 2016 
+
+```{r, fig.cap="Qualitat de representació dels partits i les variables a les eleccions del juny del 2016.", fig.width=12, fig.height=4.5, fig.pos='H'}
+p1 <- plots_ca$`Juny 2016`$rows_cos2
+p2 <- plots_ca$`Juny 2016`$cols_cos2
+
+p1+p2
+```
+
+```{r, fig.cap="Contribució dels partits i les variables a les dimensions principals per les eleccions del juny del 2016.", fig.width=12, fig.height=5, fig.pos='H'}
+p1 <- plots_ca$`Juny 2016`$rows_contrib
+p2 <- plots_ca$`Juny 2016`$cols_contrib
+
+p1+p2
+```
+
+### A.3 Eleccions abril 2019 
+
+```{r, fig.cap="Qualitat de representació dels partits i les variables a les eleccions de l'abril del 2019.", fig.width=12, fig.height=4.5, fig.pos='H'}
+p1 <- plots_ca$`Abril 2019`$rows_cos2
+p2 <- plots_ca$`Abril 2019`$cols_cos2
+
+p1+p2
+```
+
+```{r, fig.cap="Contribució dels partits i les variables a les dimensions principals per les eleccions de l'abril del 2019.", fig.width=12, fig.height=5, fig.pos='H'}
+p1 <- plots_ca$`Abril 2019`$rows_contrib
+p2 <- plots_ca$`Abril 2019`$cols_contrib
+
+p1+p2
+```
+
+
+### A.4 Eleccions novembre 2019
+
+```{r, fig.cap="Qualitat de representació dels partits i les variables a les eleccions del novembre del 2019.", fig.width=12, fig.height=4.5, fig.pos='H'}
+p1 <- plots_ca$`Novembre 2019`$rows_cos2
+p2 <- plots_ca$`Novembre 2019`$cols_cos2
+
+p1+p2
+```
+
+```{r, fig.cap="Contribució dels partits i les variables a les dimensions principals per les eleccions del novembre del 2019.", fig.width=12, fig.height=5, fig.pos='H'}
+p1 <- plots_ca$`Novembre 2019`$rows_contrib
+p2 <- plots_ca$`Novembre 2019`$cols_contrib
+
+p1+p2
+```
+
+### A.5 Eleccions juliol 2023 
+
+```{r, fig.cap="Qualitat de representació dels partits i les variables a les eleccions del juliol del 2023.", fig.width=12, fig.height=4.5, fig.pos='H'}
+p1 <- plots_ca$`Juliol 2023`$rows_cos2
+p2 <- plots_ca$`Juliol 2023`$cols_cos2
+
+p1+p2
+```
+
+```{r, fig.cap="Contribució dels partits i les variables a les dimensions principals per les eleccions del juliol del 2023", fig.width=12, fig.height=5, fig.pos='H'}
+p1 <- plots_ca$`Juliol 2023`$rows_contrib
+p2 <- plots_ca$`Juliol 2023`$cols_contrib
+
+p1+p2
+```
+
+
+## B. Codi
+
+Per assegurar la traçabilitat i la reproduïbilitat de totes les anàlisis, vam desenvolupar el projecte íntegrament a GitHub. El repositori complet es pot consultar a: [Repositori Github del projecte.](https://github.com/aniolvv2288/Treball-final-Consultoria-Estadistic)
 
