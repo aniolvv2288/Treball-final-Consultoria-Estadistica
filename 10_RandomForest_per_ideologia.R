@@ -16,7 +16,7 @@ dadesquota <- dades %>%
 
 vars_excloure <- c(
   "vots", "total_vots",
-  "any", "mes", "provincia", "districte", "seccio",
+  "any", "mes", "provincia", "districte",
   "Municipi", "Codi_municipi",
   "nom_partit", "eleccio",
   "sigles", "independentista", "quota"
@@ -34,19 +34,25 @@ modelsideologia <- function(eleccio_actual, dadesquota, vars_excloure) {
     select(-all_of(vars_excloure)) %>%
     filter(complete.cases(.))
   
+  df$group <- df$seccio
+  
   if(nrow(df) < 50) {
     warning(paste("Massa poques observacions per", eleccio_actual))
     return(NULL)
   }
   
-  split <- initial_split(df, prop = 0.8)
+  split <- group_initial_split(
+    df,
+    group = group,
+    prop = 0.8
+  )
   train <- training(split)
   test  <- testing(split)
   
-  Xtrain <- train %>% select(-ideologia)
+  Xtrain <- train %>% select(-ideologia, -group, -seccio)
   Ytrain <- train$ideologia
   
-  Xtest <- test %>% select(-ideologia)
+  Xtest <- test %>% select(-ideologia, -group, -seccio)
   Ytest <- test$ideologia
   
   # RF base
