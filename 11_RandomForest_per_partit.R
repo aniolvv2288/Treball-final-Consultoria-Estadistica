@@ -94,8 +94,7 @@ modelspartits <- function(eleccio_actual, dadesquota, vars_excloure, ctrl) {
       importance = TRUE
     )
     
-    best_mtry <- 30
-    print(rf_caret$bestTune)
+    best_mtry <- rf_caret$bestTune$mtry
     #-----------------------
     # Model final (ranger)
     #-----------------------
@@ -224,3 +223,6 @@ taulametriques <- resultats %>%
 taulametriques
 
 resultats
+
+#saveRDS(taulametriques, "metriques_RF_partits.rds")
+#saveRDS(resultats, "resultats_RF_partits.rds")
