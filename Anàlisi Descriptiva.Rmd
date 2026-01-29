@@ -381,8 +381,8 @@ plot_blocs_factor <- function(var, bloc, label_bloc, label_x) {
     ) +
     theme_minimal() +
     theme(
-      axis.text.x = element_text(angle = 30, hjust = 1),
-      plot.margin = margin(t = 10, r = 10, b = 20, l = 10)
+      axis.text.x = element_text(angle = 30, hjust = 1)
+      # Eliminar plot.margin si no és necessari
     )
 }
 
