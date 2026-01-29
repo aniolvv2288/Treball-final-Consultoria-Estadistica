@@ -455,11 +455,57 @@ Considerant únicament les categories amb bona qualitat de representació, l’a
 
 ## 5.4 Models d'Aprenentatge Automàtic
 
-JORGITO TEXTO DE TOTA LA SECCIÓ, A SUS ORDENES EMINENCIA (BORREU LA FRASE)
+Amb l’objectiu de complementar l’anàlisi factorial i els models estadístics tradicionals, es van implementar models d’aprenentatge automàtic supervisat per capturar relacions no lineals i interaccions complexes entre les variables socioeconòmiques i els resultats electorals a nivell de secció censal. En concret, es van utilitzar dos algoritmes basats en conjunts d’arbres de decisió: Random Forest i Extreme Gradient Boosting.
+
+Aquests models van permetre modelar patrons altament no lineals, van mostrar una robustesa relativa davant la multicol·linearitat entre predictors i van facilitar l’anàlisi del paper de les variables socioeconòmiques en la predicció del suport electoral. L’objectiu principal d’aquesta secció va ser identificar quins factors estructurals del territori explicaven millor la variabilitat en el suport als diferents partits polítics.
+
+Els models es van aplicar de manera desagregada per elecció i per candidatura, utilitzant com a variable resposta la quota de vot per secció censal i com a predictors exclusivament indicadors socioeconòmics i demogràfics.
 
 ### 5.4.1 Random Forest (RF)
 
+L’estratègia de modelització amb Random Forest va tenir com a objectiu capturar patrons específics de comportament electoral a nivell de secció censal. En lloc d’estimar un únic model global, es va entrenar un model independent per a cada combinació d’elecció i sigla, amb la finalitat d’analitzar de manera diferenciada els determinants socioeconòmics del suport relatiu a cada formació política.
+
+La variable dependent es va definir com la quota de vot per partit i secció censal, calculada com la proporció de vots obtinguts per una sigla sobre el total de vots emesos a la secció en una convocatòria electoral determinada:
+
+$$quota_{p,s,c} = \frac{vots_{p,s,c}}{\sum vots_{p,s,c}}$$
+
+on $p$ denota el partit política, $s$ denota la secció censal i $c$ la convocatòria electoral.
+
+Del conjunt original de variables es van excloure aquelles que identificaven directament el context electoral o la unitat administrativa, així com variables polítiques o identificatives (any, municipi, districte, nom del partit, sigles, ideologia, independentisme, entre d’altres). D’aquesta manera, el model es va construir únicament a partir d’indicadors socioeconòmics i demogràfics a nivell de secció censal, assegurant que la capacitat explicativa del model s’atribuís exclusivament a factors estructurals del territori.
+
+Per a cada elecció i sigla, les dades es van dividir en conjunts d’entrenament (80%) i test (20%) mitjançant una partició per grups basada en la secció censal. Aquest procediment va garantir que totes les observacions corresponents a una mateixa secció quedessin íntegrament assignades al mateix conjunt, evitant fuites d’informació entre conjunts i assegurant una avaluació més realista de la capacitat de generalització del model.
+
+Es va establir un llindar mínim de 50 observacions per estimar un model per partit i elecció. En els casos en què aquest volum no es va assolir, el model no es va entrenar per evitar resultats inestables o amb baixa fiabilitat estadística.
+
+L’entrenament del Random Forest es va dur a terme mitjançant validació creuada de 5 plecs sobre el conjunt d’entrenament, utilitzant el paquet `caret`. L’únic hiperparàmetre optimitzat de manera explícita va ser el nombre de variables considerades a cada partició (mtry), que controla el grau d’aleatorització entre arbres i l’equilibri entre biaix i variància del model. Per a cada valor candidat, es va estimar el rendiment mitjà en validació creuada i es va seleccionar el paràmetre que minimitzava l’error de predicció.
+
+El rendiment del model es va avaluar sobre el conjunt de test mitjançant tres indicadors estàndard en regressió: l’error quadràtic mitjà (RMSE), l’error absolut mitjà (MAE) i el coeficient de determinació($R^2$).
+
+Per abordar la interpretabilitat del model, es va incorporar una anàlisi basada en valors SHAP (SHapley Additive exPlanations), que permet descompondre cada predicció en contribucions additives atribuïbles a cada variable explicativa. Els valors SHAP es van estimar sobre una mostra aleatòria del conjunt d’entrenament (fins a un màxim de 500 observacions per model) mitjançant un procediment de simulació per permutacions. Per a una observació $x$ i una variable $j$, el valor del SHAP $\phi_j(x)$ mesura la contribució marginal esperada de $j$ a la predicció del model, promediada sobre totes les possibles combinacions de variables. 
+
+A partir d’aquests valors, es van construir dos tipus d’anàlisi. En primer lloc, una mesura d’importància global, definida com la mitjana del valor absolut dels SHAP per variable, que identifica quins factors socioeconòmics presenten un impacte mitjà més elevat sobre la quota de vot predita. En segon lloc, una anàlisi direccional acumulada (waterfall), que permet visualitzar la direcció i la magnitud mitjana de l’efecte de cada variable sobre la predicció, distingint entre contribucions positives i negatives.
+
+Aquest enfocament va facilitar la comparació sistemàtica entre partits i eleccions, posant de manifest quins eixos socioeconòmics van resultar sistemàticament rellevants i quins van emergir de manera més dependent del context electoral.
+
 ### 5.4.2 XGBoost
+
+El model Extreme Gradient Boosting (XGBoost) es va implementar com un enfocament complementari al Random Forest, amb l’objectiu d’explorar si un esquema d’optimització seqüencial dels arbres millorava la capacitat predictiva en la predicció de la quota de vot i permetia captar patrons socioeconòmics més subtils.
+
+A diferència del Random Forest, que construeix els arbres de manera independent i paral·lela, XGBoost adopta una estratègia de boosting, en què cada arbre s’entrena per corregir els errors residuals acumulats pels arbres anteriors. La predicció del model després de $K$ iteracions es va expressar com:
+
+$$\hat{y}_i=\sum_{k=1}^K f_k(x_i)$$
+
+on cada $f_k$ correspon a un arbre de regressió que contribueix de manera additiva a la predicció final per a l’observació $i$.
+
+Per garantir la comparabilitat amb Random Forest, el model XGBoost es va aplicar sobre els mateixos conjunts de dades i amb el mateix disseny experimental: La variable resposta es va definir com la quota de vot per partit i secció censal. Els predictors es van limitar a variables socioeconòmiques i demogràfiques. Es va mantenir la partició en conjunts d’entrenament i test per grups de secció censal. Es van utilitzar les mateixes mètriques d’avaluació: RMSE, MAE i $R^2$.
+
+L’entrenament es va centrar en controlar la complexitat del model mitjançant paràmetres com la profunditat màxima dels arbres, la taxa d’aprenentatge (learning rate) i el nombre d’iteracions. Aquesta regulació va permetre equilibrar la capacitat explicativa i el risc de sobreajustament, especialment rellevant en un context amb múltiples predictors correlacionats.
+
+Els arbres es van entrenar de manera seqüencial, corregint els errors residus dels arbres anteriors, fet que va permetre capturar interaccions específiques i relacions no lineals menys evidents, que podrien no ser detectades pel Random Forest.
+
+Metodològicament, Random Forest tendeix a capturar patrons robustos mitjançant l’agregació d’arbres independents, mentre que XGBoost és especialment sensible a interaccions concretes i a relacions no lineals fines entre variables. Aquesta diferència es va reflectir en la seva capacitat per millorar la predicció en partits o eleccions amb patrons socioeconòmics més heterogenis o menys homogènies territorialment. La comparació sistemàtica de les mètriques d’avaluació entre ambdós models va permetre identificar en quins contextos l’optimització seqüencial aportava millores reals de rendiment i en quins casos l’estabilitat del Random Forest resultava suficient.
+
+
 
 
 \newpage
