@@ -455,11 +455,11 @@ Considerant únicament les categories amb bona qualitat de representació, l’a
 
 ## 5.4 Models d'Aprenentatge Automàtic
 
-Amb l’objectiu de complementar l’anàlisi factorial i els models estadístics tradicionals, es van implementar models d’aprenentatge automàtic supervisat per capturar relacions no lineals i interaccions complexes entre les variables socioeconòmiques i els resultats electorals a nivell de secció censal. En concret, es van utilitzar dos algoritmes basats en conjunts d’arbres de decisió: Random Forest i Extreme Gradient Boosting.
+Per complementar l’anàlisi factorial i els models estadístics més habituals, es van ajustar models d’aprenentatge automàtic supervisat. La idea era poder captar relacions no lineals i interaccions que els models tradicionals no captaven bé. Es van utilitzar dos tipus d’arbres de decisió: Random Forest i Extreme Gradient Boosting.
 
-Aquests models van permetre modelar patrons altament no lineals, van mostrar una robustesa relativa davant la multicol·linearitat entre predictors i van facilitar l’anàlisi del paper de les variables socioeconòmiques en la predicció del suport electoral. L’objectiu principal d’aquesta secció va ser identificar quins factors estructurals del territori explicaven millor la variabilitat en el suport als diferents partits polítics.
+Aquests models van permetre modelar patrons no lineals i van facilitar l’anàlisi del paper de les variables socioeconòmiques en la predicció del suport electoral. L’objectiu principal d’aquesta secció va ser identificar quins factors del territori explicaven millor la variabilitat en el suport als diferents partits polítics.
 
-Els models es van aplicar de manera desagregada per elecció i per candidatura, utilitzant com a variable resposta la quota de vot per secció censal i com a predictors exclusivament indicadors socioeconòmics i demogràfics.
+Els models es van fer per separat, elecció per elecció i partit per partit. Com a variable a predir es va agafar la quota de vot per secció censal, i només es van incloure indicadors socioeconòmics i demogràfics com a predictors. D’aquesta manera, es podia veure directament l’efecte del territori sense que altres característiques de l’elecció o del partit interferissin.
 
 ### 5.4.1 Random Forest (RF)
 
@@ -506,8 +506,6 @@ Els arbres es van entrenar de manera seqüencial, corregint els errors residus d
 Metodològicament, Random Forest tendeix a capturar patrons robustos mitjançant l’agregació d’arbres independents, mentre que XGBoost és especialment sensible a interaccions concretes i a relacions no lineals fines entre variables. Aquesta diferència es va reflectir en la seva capacitat per millorar la predicció en partits o eleccions amb patrons socioeconòmics més heterogenis o menys homogènies territorialment. La comparació sistemàtica de les mètriques d’avaluació entre ambdós models va permetre identificar en quins contextos l’optimització seqüencial aportava millores reals de rendiment i en quins casos l’estabilitat del Random Forest resultava suficient.
 
 
-
-
 \newpage
 # 6. Validació dels models
 
@@ -522,11 +520,23 @@ Explicar com validem cada model i les mètriques que tenim en compte
 
 ## 6.3 Validació del RF
 
-jorgito texto
+Els valors de $R^2$ van variar entre 0,016 i 0,761, mostrant que la capacitat predictiva depenia força de com estava repartit el vot territorial del partit. La majoria de partits tenien un $R^2$ per sobre de 0,5. Per exemple, es veu que el PSC/PSOE sempre superava 0,73 en totes les eleccions, cosa que indica que el model captava bé els factors socioeconòmics que influïen en el seu suport. En canvi, VOX, sobretot a les eleccions de 2015 i 2016, tenia valors molt baixos ($R^2 < 0,03$), probablement per la poca mostra i per concentrar-se en zones molt concretes.
+
+L’RMSE va ser més alt en partits amb vot dispers, com CONV./JxCAT a les eleccions d’abril de 2019, amb un RMSE de 0,0896. En canvi, partits amb vot més homogeni, com el PP o CS, tenien errors més petits, per exemple 0,0192 per PP i 0,0326 per CS. L’MAE seguia patrons molt semblants.
+
+Quant a l’hiperparàmetre mtry, es va veure que els valors òptims estaven entre 2 i 5. Els partits amb moltes observacions funcionaven millor amb mtry més alt, mentre que els que tenien mostres petites milloraven amb valors més baixos, aconseguint un bon equilibri entre variància i biaix.
 
 ## 6.4 Validació del XGBoost
 
-jorgito texto
+La validació del model XGBoost es va dur a terme sobre el conjunt de test per a cada elecció i partit, registrant-se el nombre d’observacions en entrenament i test, els valors òptims dels hiperparàmetres nrounds, max_depth i eta, així com les mesures de rendiment RMSE, MAE i $R^2$.
+
+Els resultats van mostrar que, de manera general, XGBoost va obtenir un rendiment comparable al Random Forest, amb valors de $R^2$ elevats per a partits amb presència territorial estable i vot coherent. El PSC/PSOE va presentar els millors ajustos, amb $R^2$ superiors a 0.72 en totes les convocatòries, indicant una capacitat notable del model per capturar els factors socioeconòmics explicatius del suport a aquest partit. En canvi, VOX, especialment en les eleccions de 2015 i 2016, va registrar $R^2$ molt baixos (<0.005), probablement a causa de la reduïda mida de mostra i de la seva implantació territorial limitada.
+
+L’error quadràtic mitjà (RMSE) i l’error absolut mitjà (MAE) van evidenciar patrons similars als observats amb Random Forest. Partits amb vot més dispers, com CONV./JxCAT a les eleccions de 2019, van presentar RMSE superiors a 0.09, mentre que partits amb vot més homogeni, com CS o PP, van mostrar errors menors, amb RMSE al voltant de 0.02–0.04. Aquesta distribució reflecteix la dificultat relativa del model per predir partits amb un vot territorialment heterogeni.
+
+Els hiperparàmetres seleccionats van mantenir-se constants per a la majoria de models: nrounds = 150 i eta = 0.1. La profunditat màxima dels arbres (max_depth) va variar entre 4 i 6, depenent del partit i de la complexitat esperada de les interaccions entre predictors. Partits amb un volum gran d’observacions i patrons més complexos van requerir arbres més profunds, mentre que partits amb mostres més petites o amb vot concentrat van obtenir un millor rendiment amb arbres menys profunds, optimitzant l’equilibri entre complexitat i sobreajustament.
+
+En síntesi, la validació del model XGBoos
 
 
 \newpage
