@@ -185,7 +185,7 @@ INTRODUCCIÓ ÈRIC-TEXTO
 
 ## 5.2 Anàlisi de correspondències (CA) {#sec:resultats_ca}
 
-Els gràfics de qualitat de representació ($cos^2$) i de contribució a les dimensions principals es troben a la secció \nameref{sec:grafics_compl_ca}. A partir d’aquí, es dona per suposat que qualsevol referència a aquests aspectes visuals remet a aquesta secció.
+Els gràfics de qualitat de representació ($cos^2$) i de contribució a les dimensions principals es troben a la secció: \nameref{sec:grafics_compl_ca}. A partir d’aquí, es dona per suposat que qualsevol referència a aquests aspectes es remet a aquesta secció per a la seva visualització.
 
 ### 5.2.1 Eleccions desembre 2015
 
@@ -359,84 +359,47 @@ for (i in seq_along(llista_eleccions)) {
 }
 ```
 
-```{r ca2015, fig.cap="CA de les eleccions del desembre del 2015.", fig.width=12, fig.height=5, fig.align='center', fig.pos='H',fig.show='hold'}
-
-plots_ca$`Desembre 2015`$biplot + plots_ca$`Desembre 2015`$rows_cos2
+```{r ca2015, fig.cap="CA de les eleccions del desembre del 2015.", fig.width=12, fig.height=5, fig.pos='H',fig.show='hold'}
+plots_ca$`Desembre 2015`$biplot
 ```
 
 Com mostra la Figura 1, les dues primeres dimensions expliquen el 88,9% de la variabilitat total, cosa que permet identificar amb claredat les associacions entre partits polítics i variables socioeconòmiques. Tot i això, VOX i Cs presenten una qualitat de representació molt baixa —inferior a 0,20 en termes de $cos^2$—, fet que limita la fiabilitat de la seva posició en el mapa factorial i en dificulta la interpretació.
-
-```{r, fig.cap="Contribució de partits i variables pel CA de les eleccions del desembre del 2015.", fig.width=12, fig.height=5, fig.align='center', fig.pos='H',fig.show='hold'}
-
-plots_ca$`Desembre 2015`$rows_contrib+ plots_ca$`Desembre 2015`$cols_contrib
-```
 
 L’anàlisi factorial mostra que la Dimensió 1 està principalment explicada pels partits CONV./JxCAT i PSC/PSOE, a més de ERC que presenten les contribucions més elevades. Aquesta dimensió s’associa sobretot amb variables socioeconòmiques relacionades amb la renda molt baixa i molt alta, així com amb nivells elevats de desigualtat (Gini alt), indicant un eix de diferenciació socioeconòmica clara.
 La Dimensió 2 està dominada principalment pel PP a més de ERC i ECP/SUMAR, amb contribucions rellevants també de variables de renda i alguns grups d’edat. Aquest eix sembla captar diferències més vinculades a perfils socials intermedis i estructurals.
 En canvi, partits com VOX i CS presenten contribucions molt baixes en ambdues dimensions, indicant un paper poc rellevant en l’estructura factorial.
 Pel que fa a les variables, les relacionades amb immigració, mida de la llar i població tenen una contribució menor, i per tant un pes reduït en la definició dels eixos principals.
 
-
-```{r, fig.cap="Qualitat de representació de partits i variables pel CA de les eleccions del desembre del 2015.", fig.width=12, fig.height=5, fig.align='center', fig.pos='H',fig.show='hold'}
-
-plots_ca$`Desembre 2015`$rows_cos2+ plots_ca$`Desembre 2015`$cols_cos2
-```
-
 Considerant únicament les categories amb bona qualitat de representació, l’anàlisi mostra que CONV./JxCAT se situa associat a municipis amb nivells elevats de renda (renda alta i molt alta) i major desigualtat (Gini alt), així com amb una població de més edat. En el mateix eix socioeconòmic, però amb una posició menys extrema, es troba ERC, que s’associa a perfils intermedis, llars de mida petita i nivells més baixos d’immigració. En canvi, PSC/PSOE es posiciona en el costat oposat de la Dimensió 1, mostrant una clara associació amb renda baixa, menor desigualtat i població més jove, una tendència que també comparteix parcialment ECP/SUMAR. El PP presenta una associació amb renda alta i edat elevada, especialment captada per la segona dimensió. Finalment, CS i VOX mostren una qualitat de representació baixa i no es poden interpretar de manera fiable en el pla factorial.
 
 ### 5.2.2 Eleccions juny 2016
 
+```{r ca2016, fig.cap="CA de les eleccions de juny del 2016.", fig.width=12, fig.height=5, fig.pos='H',fig.show='hold'}
 
-```{r ca2016, fig.cap="CA de les eleccions de juny del 2016.", fig.width=12, fig.height=5, fig.align='center', fig.pos='H',fig.show='hold'}
-
-plots_ca$`Juny 2016`$biplot + plots_ca$`Juny 2016`$rows_cos2
+plots_ca$`Juny 2016`$biplot
 ```
 
 Les dues primeres dimensions expliquen el 91.2% de la variabilitat total, cosa que permet identificar amb claredat les associacions entre partits polítics i variables socioeconòmiques. Respecte les eleccions anteriors podem veure una millor representació de VOX, tot i que encara no acaba de estar ben representada. En cambi Cs presenta una qualitat de representació molt baixa —inferior a 0,20 en termes de $cos^2$—, fet que limita la fiabilitat de la seva posició en el mapa factorial i en dificulta la interpretació.
-
-```{r, fig.cap="Contribució de partits i variables pel CA de les eleccions del juny del 2016.", fig.width=12, fig.height=5, fig.align='center', fig.pos='H',fig.show='hold'}
-
-plots_ca$`Juny 2016`$rows_contrib+ plots_ca$`Juny 2016`$cols_contrib
-```
 
 L’anàlisi factorial mostra que la Dimensió 1 està principalment explicada pels partits CONV./JxCAT i PSC/PSOE, a més de ERC que presenten les contribucions més elevades. Aquesta dimensió s’associa sobretot amb variables socioeconòmiques relacionades amb la renda molt baixa i molt alta, així com amb nivells elevats de desigualtat (Gini alt), indicant un eix de diferenciació socioeconòmica clara.
 La Dimensió 2 està dominada principalment pel PP a més de ERC i ECP/SUMAR, amb contribucions rellevants també de variables de renda i alguns grups d’edat. Aquest eix sembla captar diferències més vinculades a perfils socials intermedis i nivell d'immigració.
 En canvi, partits com VOX i CS presenten contribucions molt baixes en ambdues dimensions, indicant un paper poc rellevant en l’estructura factorial.
 Pel que fa a les variables, les relacionades amb Edat, mida de la llar i població tenen una contribució menor, i per tant un pes reduït en la definició dels eixos principals.
 
-
-```{r, fig.cap="Qualitat de representació de partits i variables pel CA de les eleccions del juny del 2016.", fig.width=12, fig.height=5, fig.align='center', fig.pos='H',fig.show='hold'}
-
-plots_ca$`Juny 2016`$rows_cos2+ plots_ca$`Juny 2016`$cols_cos2
-```
-
 Considerant únicament les categories amb bona qualitat de representació, l’anàlisi mostra que CONV./JxCAT se situa associat a municipis amb nivells elevats de renda (renda alta i molt alta) i major desigualtat (Gini alt), així com amb una població de més edat. En el mateix eix socioeconòmic, però amb una posició menys extrema, es troba ERC, que s’associa a perfils intermedis, llars de mida petita i nivells més baixos d’immigració. En canvi, PSC/PSOE es posiciona en el costat oposat de la Dimensió 1, mostrant una clara associació amb renda baixa, menor desigualtat i població més adulta, una tendència que també comparteix parcialment ECP/SUMAR. El PP presenta una associació amb renda alta i edat elevada, especialment captada per la segona dimensió. Finalment, CS i VOX mostren una qualitat de representació baixa i no es poden interpretar de manera fiable en el pla factorial.
 
 ### 5.2.3 Eleccions abril 2019
 
-
-```{r ca2019a, fig.cap="CA de les eleccions de l'abril del 2019.", fig.width=12, fig.height=5, fig.align='center', fig.pos='H',fig.show='hold'}
-
-plots_ca$`Abril 2019`$biplot + plots_ca$`Abril 2019`$rows_cos2
+```{r ca2019a, fig.cap="CA de les eleccions de l'abril del 2019.", fig.width=12, fig.height=5, fig.pos='H',fig.show='hold'}
+plots_ca$`Abril 2019`$biplot
 ```
 
 Les dues primeres dimensions expliquen el 92,8% de la variabilitat total, cosa que permet identificar amb claredat les associacions entre partits polítics i variables socioeconòmiques. Ara sembla que totes les variables estan ben representades en termes de $cos^2$— (totes >0.5), fet que aporta fiabilitat de la seva posició en el mapa factorial i en dificulta la interpretació.
-
-```{r, fig.cap="Contribució de partits i variables pel CA de les eleccions del abril del 2019", fig.width=12, fig.height=5, fig.align='center', fig.pos='H',fig.show='hold'}
-
-plots_ca$`Abril 2019`$rows_contrib+ plots_ca$`Abril 2019`$cols_contrib
-```
 
 L’anàlisi factorial mostra que la Dimensió 1 està principalment explicada pels partits CONV./JxCAT i PSC/PSOE, a més de ERC que presenten les contribucions més elevades. Aquesta dimensió s’associa sobretot amb variables socioeconòmiques relacionades amb la renda molt baixa i molt alta, així com amb nivells elevats de desigualtat (Gini alt i baix), indicant un eix de diferenciació socioeconòmica clara.
 La Dimensió 2 està dominada principalment pel PP a més de ERC i ECP/SUMAR, amb contribucions rellevants també de variables de desigualtat gini, renda i immigració. Aquest eix sembla captar diferències més vinculades a perfils socials amb desigualtats i estructurals.
 En canvi, partits com VOX i CS presenten contribucions molt baixes en ambdues dimensions tot i que més elevada que en les eleccions anteriors.
 Pel que fa a les variables, les relacionades amb  mida de la llar i població tenen una contribució menor, i per tant un pes reduït en la definició dels eixos principals.
-
-
-```{r, fig.cap="Qualitat de representació de partits i variables pel CA de les eleccions de l'abril del 2019", fig.width=12, fig.height=5, fig.align='center', fig.pos='H',fig.show='hold'}
-
-plots_ca$`Abril 2019`$rows_cos2+ plots_ca$`Abril 2019`$cols_cos2
-```
 
 L’anàlisi mostra que CONV./JxCAT se situa associat a seccions censals amb nivells elevats de renda (renda alta i molt alta) i major desigualtat (Gini alt), així com amb una població de més edat i més petita. En el mateix eix socioeconòmic, però amb una posició menys extrema, es troba ERC, que s’associa a perfils amb renda mitjana-alta, llars de mida petita i nivells més baixos d’immigració. En canvi, PSC/PSOE es posiciona  mostrant una clara associació amb renda baixa-molt baixa, menor desigualtat i població més jove, una tendència que també comparteix parcialment ECP/SUMAR. El PP presenta una associació amb renda alta i edat elevada, però especialment amb seccions amb gini alt. Finalment, CS i VOX mostren asociació amb rendes baixes-molt baixes, llars grans e immigració alta.
 
@@ -445,57 +408,36 @@ L’anàlisi mostra que CONV./JxCAT se situa associat a seccions censals amb niv
 ### 5.2.4 Eleccions novembre 2019
 
 
-```{r ca2019n, fig.cap="CA de les eleccions del novembre del 2019.", fig.width=12, fig.height=5, fig.align='center', fig.pos='H',fig.show='hold'}
+```{r ca2019n, fig.cap="CA de les eleccions del novembre del 2019.", fig.width=12, fig.height=5, fig.pos='H',fig.show='hold'}
 
-plots_ca$`Novembre 2019`$biplot + plots_ca$`Novembre 2019`$rows_cos2
+plots_ca$`Novembre 2019`$biplot
 ```
 
 Les dues primeres dimensions expliquen el 93.4% de la variabilitat total, cosa que permet identificar amb claredat les associacions entre partits polítics i variables socioeconòmiques. Totes les variables estan ben representades en termes de $cos^2$— (totes >0.5), fet que aporta fiabilitat de la seva posició en el mapa factorial i en dificulta la interpretació. Podem destacar l'aparició de la CUP com a partit ben representat.
-
-```{r, fig.cap="Contribució de partits i variables pel CA de les eleccions del novembre del 2019.", fig.width=12, fig.height=5, fig.align='center', fig.pos='H',fig.show='hold'}
-
-plots_ca$`Novembre 2019`$rows_contrib+ plots_ca$`Novembre 2019`$cols_contrib
-```
 
 L’anàlisi factorial mostra que la Dimensió 1 està principalment explicada pels partits CONV./JxCAT i PSC/PSOE, a més de ERC que presenten les contribucions més elevades. Aquesta dimensió s’associa sobretot amb variables socioeconòmiques relacionades amb la renda molt baixa i molt alta, així com amb nivells elevats de desigualtat (Gini alt i baix), indicant un eix de diferenciació socioeconòmica clara.
 La Dimensió 2 està dominada principalment pel PP i ERC, podem destacar la caiguda en contribució de ECP/SUMAR respecte eleccions anteriors, amb contribucions rellevants també de variables de renda i nivells d'immigració. Aquest eix sembla captar diferències més vinculades a desigualtats socials i estructurals.
 En canvi, partits com VOX, CS,CUP i ECP/SUMAR presenten contribucions molt baixes en ambdues dimensions, indicant un paper poc rellevant en l’estructura factorial.
 Pel que fa a les variables, les relacionades amb edat, mida de la llar i població tenen una contribució menor, i per tant un pes reduït en la definició dels eixos principals.
 
-
-```{r, fig.cap="Qualitat de representació de partits i variables pel CA de les eleccions del novembre del 2019.", fig.width=12, fig.height=5, fig.align='center', fig.pos='H',fig.show='hold'}
-
-plots_ca$`Novembre 2019`$rows_cos2+ plots_ca$`Novembre 2019`$cols_cos2
-```
-
 L’anàlisi mostra que CONV./JxCAT se situa associat a seccions censals amb nivells elevats de renda (renda alta i molt alta) i major desigualtat (Gini alt), així com amb una població de més edat i més petita. En el mateix eix socioeconòmic, però amb una posició menys extrema, es troba ERC i CUP, que s’associen a perfils amb renda mitjana-alta, llars de mida petita i nivells més baixos d’immigració. En canvi, PSC/PSOE es posiciona  mostrant una clara associació amb renda baixa-molt baixa, menor desigualtat i població més jove, una tendència que també comparteix parcialment ECP/SUMAR. El PP presenta una associació amb renda alta i edat elevada, però especialment amb seccions amb gini alt. Finalment, CS i VOX mostren asociació amb rendes baixes-molt baixes, llars grans e immigració alta.
 
 ### 5.2.5 Eleccions juliol 2023
 
 
-```{r ca2023, fig.cap="CA de les eleccions de juliol del 2023.", fig.width=12, fig.height=5, fig.align='center', fig.pos='H',fig.show='hold'}
+```{r ca2023, fig.cap="CA de les eleccions de juliol del 2023.", fig.width=12, fig.height=5, fig.pos='H',fig.show='hold'}
 
-plots_ca$`Juliol 2023`$biplot + plots_ca$`Juliol 2023`$rows_cos2
+plots_ca$`Juliol 2023`$biplot
 ```
 
 Les dues primeres dimensions expliquen el 92.1% de la variabilitat total, cosa que permet identificar amb claredat les associacions entre partits polítics i variables socioeconòmiques. Tot i això, ECP/SUMAR presenta una qualitat de representació molt baixa —inferior a 0,20 en termes de $cos^2$—, fet que limita la fiabilitat de la seva posició en el mapa factorial i en dificulta la interpretació. Destaca que a les primeres eleccions tenía una contribució alta i que poc a poc ha anant baixat amb l'augment de constribucions d'altres partits. El mateix cas amb Cs que directament desapareix de l'analisi.
 
-```{r, fig.cap="Contribució de partits i variables pel CA de les eleccions del juliol del 2023.", fig.width=12, fig.height=5, fig.align='center', fig.pos='H',fig.show='hold'}
-
-plots_ca$`Juliol 2023`$rows_contrib+ plots_ca$`Juliol 2023`$cols_contrib
-```
 
 L’anàlisi factorial mostra que la Dimensió 1 està principalment explicada pels partits CONV./JxCAT, VOX i PSC/PSOE, en aquestes eleccions també contribueix VOX, que presenta les contribucions elevades. Aquesta dimensió s’associa sobretot amb variables socioeconòmiques relacionades amb les rendes i edat, indicant un eix de diferenciació socioeconòmica clara.
 
 La Dimensió 2 està dominada principalment pel PP a més de ERC, amb contribucions rellevants en categories de desigualtat (gini) i tamany de la llar. Aquest eix sembla captar desigualtats i tamanys de les llars.
 En canvi, partits com ECP/SUMAR i CUP presenten contribucions molt baixes en ambdues dimensions, indicant un paper poc rellevant en l’estructura factorial.
 Pel que fa a les variables, les relacionades amb immigració i població tenen una contribució menor, i per tant un pes reduït en la definició dels eixos principals.
-
-
-```{r, fig.cap="Qualitat de representació de partits i variables pel CA de les eleccions del juliol del 2023.", fig.width=12, fig.height=5, fig.align='center', fig.pos='H',fig.show='hold'}
-
-plots_ca$`Juliol 2023`$rows_cos2+ plots_ca$`Juliol 2023`$cols_cos2
-```
 
 Considerant únicament les categories amb bona qualitat de representació, l’anàlisi mostra que CONV./JxCAT se situa associat a municipis amb nivells elevats de renda (renda alta i molt alta) i major desigualtat (Gini alt), així com amb una població de més edat. En el mateix eix socioeconòmic, però amb una posició menys extrema, es troba ERC i la CUP, que s’associen a perfils amb rendes altes, llars de mida petita i gini mitjà. En canvi, PSC/PSOE es posiciona mostrant una clara associació amb renda baixa-molt baixa, menor desigualtat i població més jove. El PP presenta una associació amb renda alta i edat elevada, a més de desigualtat gran especialment captada per la segona dimensió. Finalment VOX s'asocia amb rendes baixes i molt baixes,immigració alta i edat baixa.
 
@@ -506,10 +448,15 @@ Considerant únicament les categories amb bona qualitat de representació, l’a
 
 ### 5.3.1 Selecció de models
 
+ÈRIC TEXTO EXPLICANT ELS DIFERENTS MODELS CONTEMPLATS I COM HEM SELECCIONAT EL MILLOR (BORREU LA FRASE)
+
 ### 5.3.2 Model òptim
 
+ÈRIC TEXTO + GRÀFICS DEL MODEL MÉS TOP I TOT TAULES (BORREU LA FRASE)
 
 ## 5.4 Models d'Aprenentatge Automàtic
+
+JORGITO TEXTO DE TOTA LA SECCIÓ, A SUS ORDENES EMINENCIA (BORREU LA FRASE)
 
 ### 5.4.1 Random Forest (RF)
 
@@ -525,9 +472,15 @@ Explicar com validem cada model i les mètriques que tenim en compte
 
 ## 6.2 Validació del model lineal òptim
 
+èric texto (lm - lmer)
+
 ## 6.3 Validació del RF
 
+jorgito texto
+
 ## 6.4 Validació del XGBoost
+
+jorgito texto
 
 
 \newpage
@@ -552,8 +505,6 @@ Explicar com validem cada model i les mètriques que tenim en compte
 
 Els següents gràfics mostren la qualitat de representació dels partits i de les variables socioeconòmiques i demogràfiques dins del pla factorial per cada elecció, així com la contribuació de cada perfil fila i columna a les dimensions principals. L'explicació completa es troba a l'apartat \nameref{sec:resultats_ca}. 
 
-### A.1 Eleccions desembre 2015 
-
 ```{r, fig.cap="Qualitat de representació dels partits i les variables a les eleccions del desembre del 2015.", fig.width=12, fig.height=4.5, fig.pos='H'}
 p1 <- plots_ca$`Desembre 2015`$rows_cos2
 p2 <- plots_ca$`Desembre 2015`$cols_cos2
@@ -567,9 +518,6 @@ p2 <- plots_ca$`Desembre 2015`$cols_contrib
 
 p1+p2
 ```
-
-
-### A.2 Eleccions juny 2016 
 
 ```{r, fig.cap="Qualitat de representació dels partits i les variables a les eleccions del juny del 2016.", fig.width=12, fig.height=4.5, fig.pos='H'}
 p1 <- plots_ca$`Juny 2016`$rows_cos2
@@ -585,8 +533,6 @@ p2 <- plots_ca$`Juny 2016`$cols_contrib
 p1+p2
 ```
 
-### A.3 Eleccions abril 2019 
-
 ```{r, fig.cap="Qualitat de representació dels partits i les variables a les eleccions de l'abril del 2019.", fig.width=12, fig.height=4.5, fig.pos='H'}
 p1 <- plots_ca$`Abril 2019`$rows_cos2
 p2 <- plots_ca$`Abril 2019`$cols_cos2
@@ -601,9 +547,6 @@ p2 <- plots_ca$`Abril 2019`$cols_contrib
 p1+p2
 ```
 
-
-### A.4 Eleccions novembre 2019
-
 ```{r, fig.cap="Qualitat de representació dels partits i les variables a les eleccions del novembre del 2019.", fig.width=12, fig.height=4.5, fig.pos='H'}
 p1 <- plots_ca$`Novembre 2019`$rows_cos2
 p2 <- plots_ca$`Novembre 2019`$cols_cos2
@@ -617,8 +560,6 @@ p2 <- plots_ca$`Novembre 2019`$cols_contrib
 
 p1+p2
 ```
-
-### A.5 Eleccions juliol 2023 
 
 ```{r, fig.cap="Qualitat de representació dels partits i les variables a les eleccions del juliol del 2023.", fig.width=12, fig.height=4.5, fig.pos='H'}
 p1 <- plots_ca$`Juliol 2023`$rows_cos2
