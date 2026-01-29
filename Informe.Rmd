@@ -23,9 +23,9 @@ header-includes:
 \vspace*{2cm}
 
 % Títol
-{\Huge \textbf{Comportament electoral i evolució a partir de dades censals i factors socioeconòmics i demogràfics}}\\[0.3cm]
+{\Huge \textbf{Anàlisi del comportament electoral a Catalunya: evolució i influència dels factors socioeconòmics i demogràfics}}\\[0.3cm]
 \rule{12cm}{0.4pt}\\[0.3cm]
-{\Large \textit{Estudi aplicat a dades censals i resultats electorals}}\\[2.5cm]
+{\Large \textit{Estudi sobre les eleccions generals espanyoles mitjançant dades de les seccions censals al territori català}}\\[2.5cm]
 
 % Autors
 {\Large
