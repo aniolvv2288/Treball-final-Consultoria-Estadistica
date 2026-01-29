@@ -471,6 +471,7 @@ Explicar com validem cada model i les mètriques que tenim en compte
 
 ## 6.2 Validació del model lineal òptim
 
+#### Model basal 
 èric texto (lm - lmer)
 
 ## 6.3 Validació del RF

@@ -95,7 +95,7 @@ for (partit in partits) {
       (1 | seccio),
     data = dades_partit
   )
-  
+
   # MODEL 3: només iid secció
   model3 <- lmer(
     logit_pct_vot ~ `Edat Mitjana` + `Població` +
