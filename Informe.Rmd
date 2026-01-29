@@ -182,7 +182,6 @@ Pel que fa a l’anàlisi estadística, s’han aplicat models lineals (`car` [@
 
 INTRODUCCIÓ ÈRIC-TEXTO
 
-
 ## 5.2 Anàlisi de correspondències (CA) {#sec:resultats_ca}
 
 Els gràfics de qualitat de representació ($cos^2$) i de contribució a les dimensions principals es troben a la secció: \nameref{sec:grafics_compl_ca}. A partir d’aquí, es dona per suposat que qualsevol referència a aquests aspectes es remet a aquesta secció per a la seva visualització.
