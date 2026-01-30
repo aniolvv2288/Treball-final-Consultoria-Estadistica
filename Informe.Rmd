@@ -992,12 +992,395 @@ Metodològicament, Random Forest tendeix a capturar patrons robustos mitjançant
 
 ## 6.1 Estratègia de validació
 
-Explicar com validem cada model i les mètriques que tenim en compte
+La validació del model seleccionat per a cada partit es realitza mitjançant una anàlisi exhaustiva dels residus de Pearson, amb l’objectiu de verificar el compliment dels supòsits del model lineal mixt.
+
+En primer lloc, es representa la relació entre els residus i els valors ajustats per avaluar la presència de patrons sistemàtics, cosa que permet detectar possibles problemes de no linealitat o heteroscedasticitat.
+
+A continuació, s’analitza la distribució dels residus mitjançant un histograma i un gràfic quantil-quantil (QQ-plot) per comprovar la compatibilitat amb l’assumpció de normalitat, essencial per a la validesa de la inferència sobre els coeficients del model.
+
+Finalment, es calcula la funció d’autocorrelació (ACF) i l’autocorrelació parcial (PACF) dels residus per detectar possibles dependències temporals o estructurals entre observacions corresponents a diferents eleccions. Aquesta anàlisi permet verificar si l’efecte aleatori associat al nivell “elecció” captura adequadament la correlació entre observacions repetides en el temps.
+
+En conjunt, aquesta estratègia garanteix tant la qualitat de l’ajust estadístic com la coherència estructural del model en relació amb la jerarquia territorial i temporal de les dades electorals.
 
 ## 6.2 Validació del model lineal òptim
 
 #### Model basal 
-èric texto (lm - lmer)
+
+```{r}
+
+################################################################################
+# ----- INCORPORACIÓ DADES I TRANSFORMACIÓ A LOGIT -----
+################################################################################
+
+dades <- readRDS("dades_finals.rds")
+
+dades <- dades %>%
+  group_by(seccio, eleccio) %>%
+  mutate(
+    total_vots = sum(vots),
+    pct_vot = 100 * vots / total_vots
+  ) %>%
+  ungroup()
+
+dades <- dades %>%
+  mutate(
+    pct_vot_adj = pmin(pmax(pct_vot, 0.1), 99.9),
+    logit_pct_vot = log(pct_vot_adj / (100 - pct_vot_adj))
+  )
+
+dades <- dades %>% 
+  dplyr::select(
+    sigles, seccio, eleccio, logit_pct_vot,
+    fac_Edad_media, fac_Población, fac_Tamaño_medio_del_hogar,
+    fac_renda_media_uc, fac_indice_gini, fac_poblacio_no_espanyola
+  ) %>%
+  dplyr::rename(
+    `Edat Mitjana` = fac_Edad_media,
+    `Població` = fac_Población,
+    `Mida mitjana llar` = fac_Tamaño_medio_del_hogar,
+    `Renda mitjana uc` = fac_renda_media_uc,
+    `índex Gini` = fac_indice_gini,
+    `Població no espanyola` = fac_poblacio_no_espanyola
+  ) %>%
+  na.omit()
+
+
+################################################################################
+# ----- MODEL LINEAL PER PARTIT -----
+################################################################################
+
+partits <- c("CONV./JxCAT", "CS", "CUP/PR", "ECP/SUMAR",
+             "ERC", "PP", "PSC/PSOE", "VOX")
+
+models_final <- list()
+
+for (partit in partits) {
+  
+  cat("\n=============================\n")
+  cat("Model per al partit:", partit, "\n")
+  cat("=============================\n")
+  
+  dades_partit <- dades %>% filter(sigles == partit) %>% 
+    dplyr::select(-sigles, -seccio)
+  
+  model_full <- lm(logit_pct_vot~., data = dades_partit)
+  
+  models_final[[partit]] <- model_full
+  
+  print(summary(model_full))
+}
+
+
+################################################################################
+# ----- MODELS MIXTES PER PARTIT -----
+################################################################################
+
+models_mixtes <- list()
+
+for (partit in partits) {
+  
+  cat("\n==================================\n")
+  cat("Models mixtes per al partit:", partit, "\n")
+  cat("==================================\n")
+  
+  dades_partit <- dades %>%
+    filter(sigles == partit) %>%
+    droplevels()
+  
+  # MODEL 1: iid per secció i elecció
+  model1 <- lmer(
+    logit_pct_vot ~ `Edat Mitjana` + `Població` +
+      `Mida mitjana llar` + `Renda mitjana uc` +
+      `índex Gini` + `Població no espanyola` +
+      (1 | seccio) + (1 | eleccio),
+    data = dades_partit
+  )
+  
+  # MODEL 2: eleccio efecte fix + iid seccio
+  model2 <- lmer(
+    logit_pct_vot ~ `Edat Mitjana` + `Població` + eleccio +
+      `Mida mitjana llar` + `Renda mitjana uc` +
+      `índex Gini` + `Població no espanyola` +
+      (1 | seccio),
+    data = dades_partit
+  )
+
+  # MODEL 3: només iid secció
+  model3 <- lmer(
+    logit_pct_vot ~ `Edat Mitjana` + `Població` +
+      `Mida mitjana llar` + `Renda mitjana uc` +
+      `índex Gini` + `Població no espanyola` +
+      (1 | seccio),
+    data = dades_partit
+  )
+  
+  # MODEL 4: només iid elecció
+  model4 <- lmer(
+    logit_pct_vot ~ `Edat Mitjana` + `Població` +
+      `Mida mitjana llar` + `Renda mitjana uc` +
+      `índex Gini` + `Població no espanyola` +
+      (1 | eleccio),
+    data = dades_partit
+  )
+  
+  models_mixtes[[partit]] <- list(
+    model1 = model1,
+    model2 = model2,
+    model3 = model3,
+    model4 = model4
+  )
+}
+
+
+################################################################################
+# ----- AVALUACIÓ DELS MODELS PER CADA PARTIT -----
+################################################################################
+
+n_param <- function(model) {
+  if (inherits(model, "lm")) {
+    return(length(coef(model)))
+  }
+  if (inherits(model, "lmerMod")) {
+    return(length(fixef(model)) + length(getME(model, "theta")))
+  }
+  return(NA)
+}
+
+icc_from_lmer <- function(model) {
+  vc <- as.data.frame(VarCorr(model))
+  var_re <- sum(vc$vcov[vc$grp != "Residual"])
+  var_res <- vc$vcov[vc$grp == "Residual"]
+  icc <- var_re / (var_re + var_res)
+  return(icc)
+}
+
+resultats_models <- list()
+
+for (partit in partits) {
+  
+  cat("\n==================================\n")
+  cat("Avaluació models per al partit:", partit, "\n")
+  cat("==================================\n")
+  
+  mods_mixtes <- models_mixtes[[partit]]
+  mod_lm <- models_final[[partit]]
+  
+  df_res <- data.frame(
+    model = character(),
+    AIC = numeric(),
+    BIC = numeric(),
+    ICC = character(),
+    n_param = numeric(),
+    stringsAsFactors = FALSE
+  )
+  
+  df_res <- rbind(
+    df_res,
+    data.frame(
+      model = "model0",
+      AIC = AIC(mod_lm),
+      BIC = BIC(mod_lm),
+      ICC = "-",
+      n_param = n_param(mod_lm)
+    )
+  )
+  
+  for (nom_model in names(mods_mixtes)) {
+    m <- mods_mixtes[[nom_model]]
+    df_res <- rbind(
+      df_res,
+      data.frame(
+        model = nom_model,
+        AIC = AIC(m),
+        BIC = BIC(m),
+        ICC = sprintf("%.3f", icc_from_lmer(m)),
+        n_param = n_param(m)
+      )
+    )
+  }
+  
+  colnames(df_res)[colnames(df_res) == "n_param"] <- "# Paràm."
+  colnames(df_res)[colnames(df_res) == "model"] <- "Model"
+  
+  print(df_res)
+  resultats_models[[partit]] <- df_res
+}
+
+
+colors_partits <- c(
+  "PSC/PSOE"    = "#E30613",
+  "PP"          = "#1D4ED8",
+  "ERC"         = "#FFB90F",
+  "CONV./JxCAT" = "#76EEC6",
+  "CUP/PR"      = "#FFD700",
+  "CS"          = "#F97316",
+  "VOX"         = "#00FF00",
+  "ECP/SUMAR"   = "#7C3AED"
+)
+
+taules_kable <- list()
+
+for (partit in names(resultats_models)) {
+  
+  df <- resultats_models[[partit]]
+  
+  idx_best <- which.min(df$BIC)
+  
+  df$`Model òptim` <- ifelse(seq_len(nrow(df)) == idx_best, "⭐", "")
+  
+  kbl_tbl <- df %>%
+    kbl(
+      caption = paste("Models per al partit:", partit),
+      align = "c",
+      digits = 3,
+      escape = FALSE
+    ) %>%
+    kable_styling(
+      bootstrap_options = c("striped", "hover", "condensed"),
+      full_width = FALSE,
+      font_size = 15
+    ) %>%
+    row_spec(
+      idx_best,
+      bold = TRUE,
+      color = "white",
+      background = colors_partits[partit]
+    ) %>%
+    add_header_above(
+      c(" " = 1, "Mètriques dels models" = 4, " " = 1),
+      bold = TRUE,
+      background = "#f0f0f0"
+    ) %>%
+    column_spec(1, bold = TRUE) %>%
+    column_spec(ncol(df), width = "3em") %>%
+    kable_classic(html_font = "Helvetica") %>%
+    footnote(
+      general = "⭐ indica el model amb millor BIC.",
+      general_title = "",
+      footnote_as_chunk = TRUE
+    )
+  
+  taules_kable[[partit]] <- kbl_tbl
+}
+
+taules_kable$`CONV./JxCAT`
+
+
+################################################################################
+# ----- VALIDACIÓ DEL MODEL ESCOLLIT -----
+################################################################################
+
+for (partit in partits) {
+  
+  model_sel <- models_mixtes[[partit]]$model1   # POSAR MODEL ESCOLLIT
+  
+  cat("\n===========================================\n")
+  cat("Validació del model per al partit:", partit, "\n")
+  cat("===========================================\n")
+  
+  # Residus vs ajustats
+  plot(
+    residuals(model_sel, type = "pearson") ~ fitted(model_sel),
+    main = paste("Residus vs Valors ajustats —", partit),
+    xlab = "Valors ajustats",
+    ylab = "Residus (Pearson)"
+  )
+  abline(h = 0, col = "red", lty = 2)
+  
+  # Histograma dels residus
+  hist(
+    residuals(model_sel, type = "pearson"),
+    breaks = 15,
+    main = paste("Histograma dels residus —", partit),
+    xlab = "Residus (Pearson)"
+  )
+  
+  # QQ-plot
+  qqnorm(
+    residuals(model_sel, type = "pearson"),
+    main = paste("QQ-plot dels residus —", partit)
+  )
+  qqline(residuals(model_sel, type = "pearson"), col = "red")
+  
+  # ACF
+  acf(
+    residuals(model_sel, type = "pearson"),
+    main = paste("ACF dels residus —", partit)
+  )
+  
+  # PACF
+  pacf(
+    residuals(model_sel, type = "pearson"),
+    main = paste("PACF dels residus —", partit)
+  )
+}
+```
+
+
+CONV./JxCAT: Vot més alt en zones amb renda elevada i població envellida. Vot més baix en zones amb alta immigració o població densa. $R^2$ = 0.364, model amb ajust moderat.
+
+CS: Vot més alt en zones poblades i menys envellides. Vot més baix en zones riques. $R^2$ = 0.370, ajust similar a JxCAT.
+
+CUP/PR: Vot alt en zones riques i amb renda alta. Vot baix en zones envellides i densament poblades. $R^2$ = 0.422, millor explicació del vot entre partits petits.
+
+ECP/SUMAR: Vot més alt en zones amb alta immigració i població mitjana. Menys vot en zones riques i envellides. $R^2$ = 0.388, ajust moderat.
+
+ERC: Patró similar a JxCAT, amb vot més alt en zones riques i menys immigració. $R^2$ = 0.369, ajust moderat.
+
+PP: Vot alt en zones envellides, poblades i amb més immigració. Vot menor en zones riques. $R^2$ = 0.456, model amb millor explicació del vot.
+
+PSC/PSOE: Vot més alt en zones poblades i amb més immigració. Vot menor en zones riques i envellides. $R^2$ = 0.527 → millor ajust global.
+
+VOX: Vot alt en zones poblades i envellides, menys afectat per immigració. Vot menor en zones riques. $R^2$de 0.654, millor ajust entre tots els partits.
+
+L’ús d’efectes aleatoris territorials va millorar l’ajust del model, especialment per VOX, PP i PSC/PSOE, amb ICC elevats (>0.8), indicant que gran part de la variabilitat del vot depèn de factors regionals o locals no capturats pels efectes fixos. Els models mixtes permeten una predicció més fiable a nivell territorial i expliquen millor la dispersió observada entre seccions censals.
+
+En primer lloc, l’examen de les funcions d’autocorrelació (ACF) i d’autocorrelació parcial (PACF) dels residus indica la presència d’autocorrelació significativa, especialment a llargues distàncies. Això suggereix que els models no capten completament la dependència entre seccions censals ni entre diferents períodes electorals, la qual cosa podria afectar la precisió de les prediccions.
+
+A més, la distribució dels residus no està totalment centrada en zero i mostra certa asimetria i curtosi. Aquesta desviació del supòsit de normalitat inherent als models lineals clàssics implica que els errors estàndard dels coeficients podrien estar subestimats i, per tant, les proves d’hipòtesi (t i F) podrien ser menys fiables.
+
+Els resultats també suggereixen que hi ha efectes no captats pel model, possiblement deguts a factors locals o interaccions complexes entre variables sociodemogràfiques. Això inclou, per exemple, dinàmiques entre seccions censals veïnes, efectes temporals derivats de resultats electorals previs o relacions no lineals entre renda, població i altres característiques sociodemogràfiques.
+
+Com a conseqüència, tot i que els models permeten identificar patrons generals i associacions significatives entre variables explicatives i el vot, els coeficients estimats poden ser esbiaixats i les prediccions per a seccions concretes podrien no reflectir completament la realitat.
+
+Per millorar l’adequació dels models, es podrien considerar alternatives més complexes, com ara models lineals generalitzats amb distribucions adequades per a proporcions, models espacials o autoregressius per capturar dependències geogràfiques, o bé la inclusió d’interaccions i transformacions no lineals de les variables explicatives.
+
+
+Tot i que els models lineals i mixtes aplicats als percentatges de vot no mostren un ajust perfecte, les funcions d’autocorrelació (ACF i PACF) i l’existència d’autocorrelació significativa—, els resultats obtinguts són coherent amb les tendències identificades per altres mètodes d’anàlisi.
+
+```{r}
+
+
+################################################################################
+# ----- VISUALITZACIÓ TAULES PEL MODEL ESCOLLIT -----
+################################################################################
+
+## AMB ODDS-RATIO
+
+taules_models <- list()
+
+for (partit in partits) {
+  
+  model_sel <- models_mixtes[[partit]]$model1 # POSAR MODEL QUE ESCOLLIM
+  
+  tbl <- tbl_regression(
+    model_sel,
+    exponentiate = TRUE,
+    intercept = FALSE
+  ) %>%
+    modify_header(label ~ "Variable") %>%
+    modify_caption(paste("Coeficients (OR) per al partit:", partit))
+  
+  taules_models[[partit]] <- tbl
+  
+  cat("\n=============================\n")
+  cat("Taula per al partit:", partit, "\n")
+  cat("=============================\n")
+  print(tbl)
+}
+
+```
+
 
 ## 6.3 Validació del RF
 
