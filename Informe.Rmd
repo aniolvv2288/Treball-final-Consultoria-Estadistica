@@ -180,11 +180,467 @@ Pel que fa a l’anàlisi estadística, s’han aplicat models lineals (`car` [@
 
 ## 5.1 Anàlisi Exploratòria de Dades (AED)
 
-INTRODUCCIÓ ÈRIC-TEXTO
+Aquest apartat serveix com a pas prèvi a la modelització, per descriure la base de dades final i situar-la en el context polític i socioeconòmic estudiat. 
+
+### 5.1.1 Descripció valors perduts
+
+```{r, fig.pos = 'htbp', fig.cap='Distribució valors perduts'}
+dades<- readRDS("dades_finals.rds")
+
+na_summary <- dades %>%
+  summarise(across(
+    everything(),
+    ~ sum(is.na(.))
+  )) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "variable",
+    values_to = "n_NA"
+  ) %>%
+  mutate(
+    percent_NA = round(n_NA / nrow(dades) * 100, 2)
+  ) %>%
+  filter(n_NA > 0) %>%
+  arrange(desc(percent_NA))
+
+kable(
+  na_summary,
+  col.names = c("Variable", "Nombre de NA", "% de NA"),
+  caption = "Distribució de valors perduts (NA) per variable"
+)
+
+```
+
+La taula presenta les variables en ordre decreixent segons la freqüència de valors perduts de valors perduts *NA*. Totes les variables tenen entre un $0 \%$ i un $1 \%$ de valors perduts. 
+
+\newpage
+
+### 5.1.2 PANORAMA ELECTORAL
+
+#### Evolució del vot per partit en un mateix gràfic 
+
+
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Evolució vot per partit'}
+vots_partit_eleccio <- dades %>%
+  group_by(eleccio, sigles) %>%
+  summarise(
+    vots_totals = sum(vots, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Paleta de colors per partits
+colors_partits <- c(
+  "PSC/PSOE"    = "#E30613",
+  "PP"          = "#1D4ED8",
+  "ERC"         = "#FFB90F",
+  "CONV./JxCAT" = "#76EEC6",
+  "CUP/PR"      = "#FFD700",
+  "CS"          = "#F97316",
+  "VOX"         = "#00FF00",
+  "ECP/SUMAR"   = "#7C3AED"
+)
+
+
+ggplot(vots_partit_eleccio,
+       aes(x = eleccio, y = vots_totals, group = sigles, color = sigles)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  scale_color_manual(values = colors_partits) +
+  scale_y_continuous(labels = comma) +
+  labs(
+    title = "Evolució del vot total per partit",
+    x = "Elecció",
+    y = "Nombre total de vots",
+    color = "Partit"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+Aquest gràfic presenta l'evolució dels partits al llarg de les eleccions. S'observa per exemple tendències alcistes del PSC i de VOX. 
+
+
+\newpage
+
+### 5.1.3 Evolució del vot per blocs de partits
+
+
+#### Evolució del vot per blocs ideologics (esquerra-dreta)
+
+
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Evolució bot segons vots ideològics'}
+vots_ideologia <- dades %>%
+  group_by(eleccio, ideologia) %>%
+  summarise(vots_totals = sum(vots, na.rm = TRUE), .groups = "drop")
+
+
+ggplot(vots_ideologia,
+       aes(x = eleccio, y = vots_totals, fill = ideologia)) +
+  geom_col(position = "stack") +
+  scale_fill_manual(values = c("Esquerra" = "#DC2626", "Dreta" = "#2563EB")) +
+  scale_y_continuous(labels = comma) +
+  labs(
+    title = "Evolució del vot per blocs ideològics",
+    x = "Elecció",
+    y = "Nombre total de vots",
+    fill = "Ideologia"
+  ) +
+  theme_minimal()
+
+```
+A Catalunya, independentment de l'elecció, hi predomina el vot a partits catalogats com d'esquerres. 
+
+
+#### Evolució del vot per blocs independentistes i no independentistes
+
+
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Evolució vot segons independentisme'}
+vots_indep <- dades %>%
+  group_by(eleccio, independentista) %>%
+  summarise(vots_totals = sum(vots, na.rm = TRUE), .groups = "drop")
+
+ggplot(vots_indep,
+       aes(x = eleccio, y = vots_totals, fill = independentista)) +
+  geom_col() +
+  scale_fill_manual(values = c("Sí" = "#FF3030", "No" = "#00BFFF")) +
+  scale_y_continuous(labels = comma) +
+  labs(
+    title = "Evolució vot segons independentisme",
+    x = "Elecció",
+    y = "Nombre total de vots",
+    fill = "Independentista"
+  ) +
+  theme_minimal()
+
+```
+En aquesta figura podem veure l'evolució del vot a partits independentistes. Cal recordar que aquest estudi es fa a partir dels resultats de les eleccions generals del govern espanyol però només contemplant dades provinents de Catalunya. Comentem aquest fet, ja que els vots a catalunya de partits independentistes acostumen a ser mes baixos en aquestes eleccions que en les autonòmiques. 
+
+
+\newpage
+
+### 5.1.4 Característiques de les seccions censals
+
+A continuació es mostra la distribució de diferents variables econòmiques i demogràfiques a nivell de secció censal. 
+
+
+```{r, fig.height=4, fig.width=8, fig.pos = 'htbp', fig.cap='Estructura demogràfica'}
+p_poblacio <- ggplot(dades, aes(x = Población)) +
+  geom_histogram(bins = 30, fill = "#2563EB", alpha = 0.8) +
+  scale_x_continuous(labels = comma) +
+  labs(
+    title = "Població",
+    x = "Nombre d'habitants",
+    y = "Seccions"
+  ) +
+  theme_minimal()
+
+p_edat <- ggplot(dades, aes(x = dades$`Edad media de la población`)) +
+  geom_histogram(bins = 30, fill = "#1E40AF", alpha = 0.8) +
+  labs(
+    title = "Edat mitjana",
+    x = "Edat",
+    y = "Seccions"
+  ) +
+  theme_minimal()
+
+p_poblacio | p_edat
+
+```
+
+
+
+
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Renda bruta'}
+p_persona <- ggplot(dades, aes(x = `Renta bruta media por persona`)) +
+  geom_histogram(bins = 30, fill = "#16A34A", alpha = 0.8) +
+  scale_x_continuous(labels = comma) +
+  labs(
+    title = "Renda bruta mitjana per persona",
+    x = "€",
+    y = "Nombre de seccions"
+  ) +
+  theme_minimal()
+
+p_llar <- ggplot(dades, aes(x = `Renta bruta media por hogar`)) +
+  geom_histogram(bins = 30, fill = "#0EA5E9", alpha = 0.8) +
+  scale_x_continuous(labels = comma) +
+  labs(
+    title = "Renda bruta mitjana per llar",
+    x = "€",
+    y = "Nombre de seccions"
+  ) +
+  theme_minimal()
+
+p_persona + p_llar
+```
+
+
+
+
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Renda per unitat de consum'}
+
+p_mitjana <- ggplot(dades, aes(x = `Media de la renta por unidad de consumo`)) +
+  geom_histogram(bins = 30, fill = "#7C3AED", alpha = 0.8) +
+  scale_x_continuous(labels = comma) +
+  labs(
+    title = "Renda mitjana per unitat de consum",
+    x = "€",
+    y = "Nombre de seccions"
+  ) +
+  theme_minimal()
+
+p_mediana <- ggplot(dades, aes(x = `Mediana de la renta por unidad de consumo`)) +
+  geom_histogram(bins = 30, fill = "#9333EA", alpha = 0.8) +
+  scale_x_continuous(labels = comma) +
+  labs(
+    title = "Mediana de la renda per unitat de consum",
+    x = "€",
+    y = "Nombre de seccions"
+  ) +
+  theme_minimal()
+
+p_mitjana + p_mediana
+```
+
+
+
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Mesures desigualtat'}
+p_mitjana <- ggplot(dades, aes(x = `Media de la renta por unidad de consumo`)) +
+  geom_histogram(bins = 30, fill = "#7C3AED", alpha = 0.8) +
+  scale_x_continuous(labels = comma) +
+  labs(
+    title = "Renda mitjana per unitat de consum",
+    x = "€",
+    y = "Nombre de seccions"
+  ) +
+  theme_minimal()
+
+p_mediana <- ggplot(dades, aes(x = `Mediana de la renta por unidad de consumo`)) +
+  geom_histogram(bins = 30, fill = "#9333EA", alpha = 0.8) +
+  scale_x_continuous(labels = comma) +
+  labs(
+    title = "Mediana de la renda per unitat de consum",
+    x = "€",
+    y = "Nombre de seccions"
+  ) +
+  theme_minimal()
+
+p_mitjana + p_mediana
+
+```
+
+
+\newpage
+
+
+### 5.1.5 Vot i context socioecònomic
+
+A continuació es mostra de manera qualitativa la dsitribució total (és a dir, tenint en compte totes les eleccions) de vot segons diferents variables de les seccions.  
+
+
+
+
+```{r, fig.align='center', fig.pos = 'htbp'}
+plot_vot_factor <- function(var, label_x, show_legend = TRUE) {
+  p <- dades %>%
+    filter(!is.na({{ var }})) %>%   
+    group_by({{ var }}, sigles) %>%
+    summarise(vots = sum(vots, na.rm = TRUE), .groups = "drop") %>%
+    group_by({{ var }}) %>%
+    mutate(percentatge = vots / sum(vots) * 100) %>%
+    ggplot(aes(x = {{ var }}, y = percentatge, fill = sigles)) +
+    geom_col() +
+    scale_fill_manual(values = colors_partits) +
+    scale_y_continuous(labels = percent_format(scale = 1)) +
+    labs(
+      x = label_x,
+      y = "% de vots",
+      fill = "Partit"
+    ) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
+  if (!show_legend) {
+    p <- p + theme(legend.position = "none")
+  }
+
+  p
+}
+
+p_renda <- plot_vot_factor(
+  fac_renda_bruta_persona,
+  "Renda bruta per persona",
+  show_legend = FALSE
+)
+
+p_gini <- plot_vot_factor(
+  fac_indice_gini,
+  "Desigualtat (Índex de Gini)",
+  show_legend = FALSE
+)
+
+p_imm <- plot_vot_factor(
+  fac_poblacio_no_espanyola,
+  "Població no espanyola",
+  show_legend = TRUE
+)
+
+p_edat <- plot_vot_factor(
+  fac_Edad_media,
+  "Edat mitjana",
+  show_legend = TRUE
+)
+```
+
+
+
+
+
+```{r,fig.align='center', fig.pos = 'htbp', fig.cap='Renda bruta per persona i edat mitjana'}
+p_renda | p_edat
+```
+
+
+
+
+
+```{r,fig.align='center', fig.pos = 'htbp', fig.cap='Gini i Immigració'}
+p_gini | p_imm
+```
+
+
+
+
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Ideologia i vot independentista segons variables socioeconòmiques'}
+colors_indep <- c(
+  "Sí" = "#B91C1C",   
+  "No" = "#1D4ED8"    
+)
+
+plot_blocs_factor <- function(var, bloc, label_bloc, label_x) {
+  dades %>%
+    filter(!is.na({{ var }}), !is.na({{ bloc }})) %>% 
+    group_by({{ var }}, {{ bloc }}) %>%
+    summarise(vots = sum(vots, na.rm = TRUE), .groups = "drop") %>%
+    group_by({{ var }}) %>%
+    mutate(percentatge = vots / sum(vots) * 100) %>%
+    ggplot(aes(x = {{ var }}, y = percentatge, fill = {{ bloc }})) +
+    geom_col() +
+    scale_y_continuous(labels = percent_format(scale = 1)) +
+    labs(
+      x = label_x,
+      y = "% de vots",
+      fill = label_bloc
+    ) +
+    theme_minimal() +
+    theme(
+      axis.text.x = element_text(angle = 30, hjust = 1)
+      # Eliminar plot.margin si no és necessari
+    )
+}
+
+# RENDA 
+p_ideo_renda <- plot_blocs_factor(
+  fac_renda_bruta_persona,
+  ideologia,
+  "Ideologia",
+  "Renda bruta per persona"
+)
+
+p_indep_renda <- plot_blocs_factor(
+  fac_renda_bruta_persona,
+  independentista,
+  "Independentisme",
+  "Renda bruta per persona"
+) +
+  scale_fill_manual(values = colors_indep)
+
+# Desigualtat
+p_ideo_gini <- plot_blocs_factor(
+  fac_indice_gini,
+  ideologia,
+  "Ideologia",
+  "Desigualtat (Índex de Gini)"
+)
+
+p_indep_gini <- plot_blocs_factor(
+  fac_indice_gini,
+  independentista,
+  "Independentisme",
+  "Desigualtat (Índex de Gini)"
+) +
+  scale_fill_manual(values = colors_indep)
+
+# IMMIGRACIÓ
+p_ideo_imm <- plot_blocs_factor(
+  fac_poblacio_no_espanyola,
+  ideologia,
+  "Ideologia",
+  "Població no espanyola"
+)
+
+p_indep_imm <- plot_blocs_factor(
+  fac_poblacio_no_espanyola,
+  independentista,
+  "Independentisme",
+  "Població no espanyola"
+) +
+  scale_fill_manual(values = colors_indep)
+
+p_ideo_edat <- plot_blocs_factor(
+  fac_Edad_media,
+  ideologia,
+  "Ideologia",
+  "Edat mitjana"
+)
+
+p_indep_edat <- plot_blocs_factor(
+  fac_Edad_media,
+  independentista,
+  "Independentisme",
+  "Edat mitjana"
+) +
+  scale_fill_manual(values = colors_indep)
+```
+
+
+
+
+
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Renda segons blocs'}
+(p_ideo_renda | p_indep_renda) 
+```
+
+
+
+
+
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Gini segons blocs'}
+(p_ideo_gini  | p_indep_gini) 
+```
+
+
+
+
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Immigració segons blocs'}
+(p_ideo_imm   | p_indep_imm)  
+```
+
+
+
+```{r,fig.align='center', fig.pos = 'htbp', fig.cap='Edat mitjana segons blocs'}
+(p_ideo_edat  | p_indep_edat)
+```
+
+
+\newpage
 
 ## 5.2 Anàlisi de correspondències (CA) {#sec:resultats_ca}
 
 Els gràfics de qualitat de representació ($cos^2$) i de contribució a les dimensions principals es troben a la secció: \nameref{sec:grafics_compl_ca}. A partir d’aquí, es dona per suposat que qualsevol referència a aquests aspectes es remet a aquesta secció per a la seva visualització.
+
 
 ### 5.2.1 Eleccions desembre 2015
 
@@ -596,9 +1052,104 @@ En conjunt, aquest treball demostra que el comportament electoral a Catalunya es
 
 \newpage
 
+
 # Annexos
 
-## A. Resultats CA {#sec:grafics_compl_ca}
+## A. Descripció de variables
+
+La nostra base de dades final conté les seguents 43 variables:
+
+\begin{enumerate}
+\item \textbf{any:} Any en què se celebra l’elecció general (2015, 2016, 2019 o 2023).
+
+\item \textbf{mes:} Mes en què se celebra l’elecció general.
+
+\item \textbf{provincia:} Codi de la província corresponent a la secció censal.
+
+\item \textbf{districte:} Codi del districte electoral.
+
+\item \textbf{seccio:} Codi identificador de la secció censal.
+
+\item \textbf{nom\_partit:} Nom complet del partit polític o candidatura.
+
+\item \textbf{vots:} Nombre total de vots obtinguts pel partit polític a la secció censal.
+
+\item \textbf{Municipi:} Nom del municipi al qual pertany la secció censal.
+
+\item \textbf{Codi\_municipi:} Codi oficial del municipi.
+
+\item \textbf{Edad media de la población:} Edat mitjana de la població resident a la secció censal.
+
+\item \textbf{Población:} Nombre total d’habitants de la secció censal.
+
+\item \textbf{Porcentaje de hogares unipersonales:} Percentatge de llars formades per una sola persona.
+
+\item \textbf{Porcentaje de población de 65 y más años:} Percentatge de població amb 65 anys o més.
+
+\item \textbf{Porcentaje de población española:} Percentatge de població amb nacionalitat espanyola.
+
+\item \textbf{Porcentaje de población menor de 18 años:} Percentatge de població menor de 18 anys.
+
+\item \textbf{Tamaño medio del hogar:} Nombre mitjà de persones per llar a la secció censal.
+
+\item \textbf{Distribución de la renta P80/P20:} Ràtio entre el percentil 80 i el percentil 20 de la distribució de la renda, com a mesura de desigualtat.
+
+\item \textbf{Índice de Gini:} Índex de Gini de la renda a la secció censal.
+
+\item \textbf{Fuente de ingreso: otras prestaciones:} Percentatge de llars amb ingressos provinents d’altres prestacions socials.
+
+\item \textbf{Fuente de ingreso: otros ingresos:} Percentatge de llars amb ingressos procedents d’altres fonts no especificades.
+
+\item \textbf{Fuente de ingreso: pensiones:} Percentatge de llars amb ingressos provinents de pensions.
+
+\item \textbf{Fuente de ingreso: prestaciones por desempleo:} Percentatge de llars amb ingressos provinents de prestacions per atur.
+
+\item \textbf{Fuente de ingreso: salario:} Percentatge de llars amb ingressos principals procedents del salari.
+
+\item \textbf{Media de la renta por unidad de consumo:} Renda mitjana de les llars ajustada per la mida i composició mitjançant unitats de consum.
+
+\item \textbf{Mediana de la renta por unidad de consumo:} Mediana de la renda de les llars ajustada per unitats de consum.
+
+\item \textbf{Renta bruta media por hogar:} Renda bruta mitjana per llar.
+
+\item \textbf{Renta bruta media por persona:} Renda bruta mitjana per persona.
+
+\item \textbf{Renta neta media por hogar:} Renda neta mitjana per llar.
+
+\item \textbf{Renta neta media por persona:} Renda neta mitjana per persona.
+
+\item \textbf{sigles:} Sigles del partit polític, unificades mitjançant un diccionari per garantir la coherència temporal i agrupar coalicions equivalents.
+
+\item \textbf{eleccio:} Variable creada que identifica de manera única cada elecció general mitjançant la combinació d’any i mes (per exemple, \textit{2019\_abr} i \textit{2019\_nov}).
+
+\item \textbf{ideologia:} Variable categòrica que classifica els partits polítics en dos grans blocs ideològics: esquerra i dreta.
+
+\item \textbf{independentista:} Variable dicotòmica que indica si el partit polític té una posició explícitament independentista respecte a Catalunya (Sí/No).
+
+\item \textbf{fac\_Edad\_media:} Versió categòrica de l’edat mitjana de la població, amb tres nivells: secció jove, secció d’edat mitjana i secció envellida.
+
+\item \textbf{fac\_Población:} Variable categòrica de la població de la secció censal, definida a partir de quartils.
+
+\item \textbf{fac\_Tamaño\_medio\_del\_hogar:} Variable categòrica de la mida mitjana de la llar, definida a partir de tercils.
+
+\item \textbf{fac\_renda\_bruta\_persona:} Renda bruta mitjana per persona categòrica, definida a partir de quintils.
+
+\item \textbf{fac\_renda\_bruta\_llar:} Renda bruta mitjana per llar categòrica, definida a partir de quintils.
+
+\item \textbf{fac\_renda\_media\_uc:} Renda mitjana per unitat de consum categòrica, definida a partir de quintils.
+
+\item \textbf{fac\_renda\_mediana\_uc:} Mediana de la renda per unitat de consum categòrica, definida a partir de quintils.
+
+\item \textbf{fac\_indice\_gini:} Versió categòrica de la distribució de l'índex de Gini, definida a partir de literatura prèvia i interpretada com a nivell de desigualtat (baixa, mitjana o alta).
+
+\item \textbf{Porcentaje\_poblacion\_no\_española:} Percentatge de població no espanyola resident a la secció censal.
+
+\item \textbf{fac\_poblacio\_no\_espanyola:} Variable categòrica del percentatge de població no espanyola, definida a partir de tercils (baixa, mitjana o alta immigració).
+\end{enumerate}
+
+\newpage
+
+## B. Resultats CA {#sec:grafics_compl_ca}
 
 Els següents gràfics mostren la qualitat de representació dels partits i de les variables socioeconòmiques i demogràfiques dins del pla factorial per cada elecció, així com la contribuació de cada perfil fila i columna a les dimensions principals. L'explicació completa es troba a l'apartat \nameref{sec:resultats_ca}. 
 
@@ -673,7 +1224,7 @@ p1+p2
 ```
 
 
-## B. Codi
+## C. Codi
 
 Per assegurar la traçabilitat i la reproduïbilitat de totes les anàlisis, vam desenvolupar el projecte íntegrament a GitHub. El repositori complet es pot consultar a: [Repositori Github del projecte.](https://github.com/aniolvv2288/Treball-final-Consultoria-Estadistic)
 

@@ -10,9 +10,12 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-## Transformació de variables
+## Transformació DB
+
+Apartat on apliquem les transformacions necesàries per dur a terme l'anàlisi, partint d'un primer dataframe que conté les dades ajuntades però sense tractar
+
 ```{r}
-dades<- readRDS("dfcomplet.rds")
+dades_tr<- readRDS("dfcomplet.rds")
 ```
 
 
@@ -32,7 +35,7 @@ Eliminem les seguents variables de la base de dades per ser poc informatives o p
 \end{enumerate}
 
 ```{r}
-dades <- subset(dades, select = -c(proces, volta, ccaa, municipi, tipus, candidatura, Districte))
+dades_tr <- subset(dades_tr, select = -c(proces, volta, ccaa, municipi, tipus, candidatura, Districte))
 ```
 
 
@@ -72,7 +75,7 @@ diccionari_partits <- tribble(
 )
 
 # Aplicació del diccionari
-dades <- dades %>%
+dades_tr <- dades_tr %>%
   left_join(
     diccionari_partits,
     by = c("sigles" = "sigla_original")
@@ -82,9 +85,9 @@ dades <- dades %>%
   )
 
 # Eliminació variables intermèdies per aconseguir les sigles finals
-dades <- subset(dades, select = -c(sigles, sigla_std))
+dades_tr <- subset(dades_tr, select = -c(sigles, sigla_std))
 
-dades <- dades %>%
+dades_tr <- dades_tr %>%
   rename(sigles = sigles_final)
 ```
 
@@ -94,19 +97,19 @@ dades <- dades %>%
 Com l'any 2019 hi van haver dues eleccions generals (a l'abril i al novembre), per referir-nos a cada elecció concreta hem d'usar una combinació de les variables `any`i `mes`.
 
 ```{r}
-dades$eleccio <- paste0(
-  dades$any, "_",
-  ifelse(dades$mes == "04",  "abr",
-  ifelse(dades$mes == "06",  "jun",
-  ifelse(dades$mes == "07",  "jul",
-  ifelse(dades$mes == "11", "nov",
-  ifelse(dades$mes == "12", "des", NA)))))
+dades_tr$eleccio <- paste0(
+  dades_tr$any, "_",
+  ifelse(dades_tr$mes == "04",  "abr",
+  ifelse(dades_tr$mes == "06",  "jun",
+  ifelse(dades_tr$mes == "07",  "jul",
+  ifelse(dades_tr$mes == "11", "nov",
+  ifelse(dades_tr$mes == "12", "des", NA)))))
 )
 
 #Definim factor ordenat
-nivells_eleccio <- unique(dades$eleccio[order(dades$any, dades$mes)])
+nivells_eleccio <- unique(dades_tr$eleccio[order(dades_tr$any, dades_tr$mes)])
 
-dades$eleccio <- factor(dades$eleccio, levels = nivells_eleccio, ordered = TRUE)
+dades_tr$eleccio <- factor(dades_tr$eleccio, levels = nivells_eleccio, ordered = TRUE)
 
 ```
 
@@ -119,7 +122,7 @@ Aquest criteri permet reduir la fragmentació causada per candidatures minorità
 #### Verificació dels 8 més rellevants
 ```{r}
 #Vots totals per partit (tota la base de dades)
-vots_per_partit <- dades %>%
+vots_per_partit <- dades_tr %>%
   group_by(sigles) %>%
   summarise(
     vots_totals = sum(vots, na.rm = TRUE),
@@ -166,7 +169,7 @@ Veiem també com només considerant els 8 primers ja tenim en compte una proporc
 
 #### Filtratge de dades
 ```{r}
-dades <- dades %>%
+dades_tr <- dades_tr %>%
   filter(sigles %in% top8_partits$sigles)
 ```
 
@@ -192,11 +195,11 @@ diccionari_ideologia <- tribble(
 )
 
 
-dades <- dades %>%
+dades_tr <- dades_tr %>%
 left_join(diccionari_ideologia, by = "sigles")
 
 ## El definim com a factor ordenat
-dades$ideologia <- factor(dades$ideologia,levels = c("Esquerra", "Dreta"))
+dades_tr$ideologia <- factor(dades_tr$ideologia,levels = c("Esquerra", "Dreta"))
 
 
 
@@ -215,10 +218,10 @@ diccionari_independentisme <- tribble(
 "PACMA",         "No"
 )
 
-dades <- dades %>%
+dades_tr <- dades_tr %>%
 left_join(diccionari_independentisme, by = "sigles")
 
-dades$independentista<- as.factor(dades$independentista)
+dades_tr$independentista<- as.factor(dades_tr$independentista)
 ```
 
 
@@ -227,7 +230,7 @@ dades$independentista<- as.factor(dades$independentista)
 Correcció de variables que no són del tipus esperat
 
 ```{r}
-dades <- dades %>%
+dades_tr <- dades_tr %>%
   mutate(
     
     #Numèriques
@@ -257,10 +260,10 @@ De cara a la descripció de la base de dades i a la modelització és interessan
 #### Edat
 
 ```{r}
-summary(dades[["Edad media de la población"]])
+summary(dades_tr[["Edad media de la población"]])
 
 hist(
-  dades[["Edad media de la población"]],
+  dades_tr[["Edad media de la población"]],
   main = "Edat mitjana de la població",
   xlab = "Edat mitjana (anys)",
   breaks = 30
@@ -277,23 +280,23 @@ $40 < \text{Mitjana edat} < 45 = \text{Secció d'edat mitjana}$
 $\text{Mitjana edat} > 45 = \text{Secció jove}$
 
 ```{r}
-dades$fac_Edad_media <- cut(
-  dades$`Edad media de la población`,
+dades_tr$fac_Edad_media <- cut(
+  dades_tr$`Edad media de la población`,
   breaks = c(-Inf, 40, 45, Inf),
   labels = c("Secció jove", "Secció d'edat mitjana", "Secció envellida"),
   include.lowest = TRUE
 )
 
-plot(dades$fac_Edad_media)
+plot(dades_tr$fac_Edad_media)
 ```
 
 #### Població
 
 ```{r}
-summary(dades$Población)
+summary(dades_tr$Población)
 
 hist(
-dades$Población,
+dades_tr$Población,
 main = "Població per secció censal",
 xlab = "Nombre d'habitants",
 breaks = 30
@@ -306,13 +309,13 @@ Punts de talls establerts amb quartils:
 
 ```{r}
 cuts_pob <- quantile(
-dades$Población,
+dades_tr$Población,
 probs = c(0, 0.25, 0.5, 0.75, 1),
 na.rm = TRUE
 )
 
-dades$fac_Población <- cut(
-dades$Población,
+dades_tr$fac_Población <- cut(
+dades_tr$Población,
 breaks = cuts_pob,
 include.lowest = TRUE,
 labels = c(
@@ -330,10 +333,10 @@ cuts_pob
 
 #### Mida mitjana de la llar
 ```{r}
-summary(dades$`Tamaño medio del hogar`)
+summary(dades_tr$`Tamaño medio del hogar`)
 
 hist(
-dades$`Tamaño medio del hogar`,
+dades_tr$`Tamaño medio del hogar`,
 main = "Mida mitjana de la llar",
 xlab = "Persones per llar",
 breaks = 30
@@ -343,13 +346,13 @@ breaks = 30
 
 ```{r}
 cuts_hogar <- quantile(
-dades$`Tamaño medio del hogar`,
+dades_tr$`Tamaño medio del hogar`,
 probs = c(0, 1/3, 2/3, 1),
 na.rm = TRUE
 )
 
-dades$fac_Tamaño_medio_del_hogar <- cut(
-dades$`Tamaño medio del hogar`,
+dades_tr$fac_Tamaño_medio_del_hogar <- cut(
+dades_tr$`Tamaño medio del hogar`,
 breaks = cuts_hogar,
 include.lowest = TRUE,
 labels = c(
@@ -365,10 +368,10 @@ cuts_hogar
 #### Renda bruta mitjana per persona
 
 ```{r}
-summary(dades$`Renta bruta media por persona`)
+summary(dades_tr$`Renta bruta media por persona`)
 
 hist(
-dades$`Renta bruta media por persona`,
+dades_tr$`Renta bruta media por persona`,
 main = "Renda bruta mitjana per persona",
 xlab = "Renda (€)",
 breaks = 30
@@ -380,13 +383,13 @@ Punts de tall establerts amb quartils
 
 ```{r}
 cuts_renda_persona <- quantile(
-dades$`Renta bruta media por persona`,
+dades_tr$`Renta bruta media por persona`,
 probs = seq(0,1,by=0.2),
 na.rm = TRUE
 )
 
-dades$fac_renda_bruta_persona <- cut(
-dades$`Renta bruta media por persona`,
+dades_tr$fac_renda_bruta_persona <- cut(
+dades_tr$`Renta bruta media por persona`,
 breaks = cuts_renda_persona,
 include.lowest = TRUE,
 labels = c(
@@ -406,10 +409,10 @@ cuts_renda_persona
 #### Renda bruta mitjana per llar
 
 ```{r}
-summary(dades$`Renta bruta media por hogar`)
+summary(dades_tr$`Renta bruta media por hogar`)
 
 hist(
-dades$`Renta bruta media por hogar`,
+dades_tr$`Renta bruta media por hogar`,
 main = "Renda bruta mitjana per llar",
 xlab = "Renda (€)",
 breaks = 30
@@ -421,13 +424,13 @@ Punts de talls establerts amb quartils
 
 ```{r}
 cuts_renda_llar <- quantile(
-dades$`Renta bruta media por hogar`,
+dades_tr$`Renta bruta media por hogar`,
 probs = seq(0,1,by=0.2),
 na.rm = TRUE
 )
 
-dades$fac_renda_bruta_llar <- cut(
-dades$`Renta bruta media por hogar`,
+dades_tr$fac_renda_bruta_llar <- cut(
+dades_tr$`Renta bruta media por hogar`,
 breaks = cuts_renda_llar,
 include.lowest = TRUE,
 labels = c(
@@ -446,10 +449,10 @@ cuts_renda_llar
 
 #### Mitjana de la renda per unitat de consum
 ```{r}
-summary(dades$`Media de la renta por unidad de consumo`)
+summary(dades_tr$`Media de la renta por unidad de consumo`)
 
 hist(
-dades$`Media de la renta por unidad de consumo`,
+dades_tr$`Media de la renta por unidad de consumo`,
 main = "Renda mitjana per unitat de consum",
 xlab = "Renda (€)",
 breaks = 30
@@ -461,13 +464,13 @@ Punts de talls triats amb quintils
 
 ```{r}
 cuts_renda_uc <- quantile(
-dades$`Media de la renta por unidad de consumo`,
+dades_tr$`Media de la renta por unidad de consumo`,
 probs = seq(0, 1, 0.2),
 na.rm = TRUE
 )
 
-dades$fac_renda_media_uc <- cut(
-dades$`Media de la renta por unidad de consumo`,
+dades_tr$fac_renda_media_uc <- cut(
+dades_tr$`Media de la renta por unidad de consumo`,
 breaks = cuts_renda_uc,
 include.lowest = TRUE,
 labels = c(
@@ -486,10 +489,10 @@ cuts_renda_uc
 #### Mediana de la renda per unitat de consum
 
 ```{r}
-summary(dades$`Mediana de la renta por unidad de consumo`)
+summary(dades_tr$`Mediana de la renta por unidad de consumo`)
 
 hist(
-dades$`Mediana de la renta por unidad de consumo`,
+dades_tr$`Mediana de la renta por unidad de consumo`,
 main = "Mediana de la renda per unitat de consum",
 xlab = "Renda (€)",
 breaks = 25
@@ -499,13 +502,13 @@ breaks = 25
 
 ```{r}
 cuts_mediana_uc <- quantile(
-dades$`Mediana de la renta por unidad de consumo`,
+dades_tr$`Mediana de la renta por unidad de consumo`,
 probs = seq(0, 1, 0.2),
 na.rm = TRUE
 )
 
-dades$fac_renda_mediana_uc <- cut(
-dades$`Mediana de la renta por unidad de consumo`,
+dades_tr$fac_renda_mediana_uc <- cut(
+dades_tr$`Mediana de la renta por unidad de consumo`,
 breaks = cuts_mediana_uc,
 include.lowest = TRUE,
 labels = c(
@@ -523,10 +526,10 @@ cuts_mediana_uc
 #### Distribució de índex de Gini
 
 ```{r}
-summary(dades$`Índice de Gini`)
+summary(dades_tr$`Índice de Gini`)
 
 hist(
-dades$`Índice de Gini`,
+dades_tr$`Índice de Gini`,
 main = "Desigualtat en la distribució de la renda (Índex de Gini)",
 xlab = "Índex de Gini",
 breaks = 30
@@ -536,7 +539,7 @@ breaks = 30
 ```
 
 
-Punts de tall triats a partir de llindars habituals en estudis de desigualtat (Falta citar link https://www.numberanalytics.com/blog/complete-guide-wealth-gini-coefficient-index?utm)
+Punts de tall triats a partir de llindars habituals en estudis de desigualtat.
 
 $\text{Gini} < 25\% = \text{Poca desigualtat}$
 
@@ -545,8 +548,8 @@ $20\% < \text{Mitjana edat} < 35\% = \text{Moderada desigualtat}$
 $\text{Mitjana edat} > 35% = \text{Alta desigualta}$
 
 ```{r}
-dades$fac_indice_gini <- cut(
-dades$`Índice de Gini`,
+dades_tr$fac_indice_gini <- cut(
+dades_tr$`Índice de Gini`,
 breaks = c(-Inf, 25, 35, Inf),
 include.lowest = TRUE,
 labels = c(
@@ -556,19 +559,19 @@ labels = c(
 )
 )
 
-plot(dades$fac_indice_gini)
+plot(dades_tr$fac_indice_gini)
 ```
 
 
 #### Població no espanyola
 
 ```{r}
-dades$Porcentaje_poblacion_no_española<- 100-dades$`Porcentaje de población española`
+dades_tr$Porcentaje_poblacion_no_española<- 100-dades_tr$`Porcentaje de población española`
 
-summary(dades$Porcentaje_poblacion_no_española)
+summary(dades_tr$Porcentaje_poblacion_no_española)
 
 hist(
-dades$Porcentaje_poblacion_no_española,
+dades_tr$Porcentaje_poblacion_no_española,
 main = "Porcentaje de población no española",
 xlab = "Población no española",
 breaks = 25
@@ -579,13 +582,13 @@ Punts de tall triats amb tercils
 
 ```{r}
 cuts_immigracio <- quantile(
-  dades$Porcentaje_poblacion_no_española,
+  dades_tr$Porcentaje_poblacion_no_española,
   probs = c(0, 1/3, 2/3, 1),
   na.rm = TRUE
 )
 
-dades$fac_poblacio_no_espanyola <- cut(
-  dades$Porcentaje_poblacion_no_española,
+dades_tr$fac_poblacio_no_espanyola <- cut(
+  dades_tr$Porcentaje_poblacion_no_española,
   breaks = cuts_immigracio,
   include.lowest = TRUE,
   labels = c(

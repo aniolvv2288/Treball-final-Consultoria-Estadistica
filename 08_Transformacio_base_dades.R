@@ -253,3 +253,4 @@ dades$fac_poblacio_no_espanyola <- cut(
   include.lowest = TRUE,
   labels = c("Baixa immigració", "Mitjana immigració", "Alta immigració")
 )
+

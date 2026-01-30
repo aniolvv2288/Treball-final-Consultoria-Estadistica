@@ -275,6 +275,8 @@ p_mitjana + p_mediana
 
 ### 5.1.5 Vot i context socioecònomic
 
+A continuació es mostra de manera qualitativa la dsitribució total (és a dir, tenint en compte totes les eleccions) de vot segons diferents variables de les seccions.  
+
 #### Vot segons nivell socioeconòmic (variables categòriques)
 
 ```{r, fig.align='center', fig.pos = 'htbp'}
