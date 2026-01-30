@@ -4,7 +4,7 @@ This repository contains the code, data workflows, and documentation for our fin
 
 ## 📖 Project Overview
 
-Posar text
+Spain elections through catalan censal sections
 
 ## 🔑 Key Components
 
