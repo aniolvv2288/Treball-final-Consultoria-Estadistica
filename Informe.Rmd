@@ -455,11 +455,21 @@ Considerant únicament les categories amb bona qualitat de representació, l’a
 
 ## 5.4 Models d'Aprenentatge Automàtic
 
+
 Per complementar l’anàlisi factorial i els models estadístics més habituals, es van ajustar models d’aprenentatge automàtic supervisat. La idea era poder captar relacions no lineals i interaccions que els models tradicionals no captaven bé. Es van utilitzar dos tipus d’arbres de decisió: Random Forest i Extreme Gradient Boosting.
 
 Aquests models van permetre modelar patrons no lineals i van facilitar l’anàlisi del paper de les variables socioeconòmiques en la predicció del suport electoral. L’objectiu principal d’aquesta secció va ser identificar quins factors del territori explicaven millor la variabilitat en el suport als diferents partits polítics.
 
 Els models es van fer per separat, elecció per elecció i partit per partit. Com a variable a predir es va agafar la quota de vot per secció censal, i només es van incloure indicadors socioeconòmics i demogràfics com a predictors. D’aquesta manera, es podia veure directament l’efecte del territori sense que altres característiques de l’elecció o del partit interferissin.
+
+En alguns models, els valors SHAP de variables altament correlacionades, com `renda mitjana per persona` i `renda mitjana per llar`, mostren signes oposats. Aquestes poden reflectir diferències de patró local: per exemple, en zones amb llars grans, l’efecte de renda per llar podria diferir de la renda per persona. La literatura indica que això és una conseqüència esperable de la colinearitat: els arbres poden utilitzar una variable per fer particions i assignar l’efecte restant a l’altra variable, generant valors SHAP amb signe contrari (@lundberg2017, @molnar2020, @hooker2007). Això no reflecteix un efecte negatiu real, sinó una distribució arbitrària de la contribució entre variables correlacionades.
+
+Per garantir una interpretació correcta, s’ha modelat per separat per tal de poder combinar-ho posteriorment si es volgués interpretar l’efecte combinat de les variables de renda com una dimensió socioeconòmica comuna, considerant així la direcció i magnitud neta de l’impacte sobre la quota de vot.
+
+Com expliquen @hastie2009 i @molnar2020 utilitzar variables correlacionades no necessariament degraden el rendiment del model. Ja que els arbres son capaços d'escollir quina de les variables correlacionades utilitzar per fer les particions. Per tant, la predicció final pot ser òptima tot i la possiblement innecessaria complexitat del model.
+
+Així que tot i que `renda mitjana per persona` i `renda mitjana per llar` estan correlacionades, la literatura indica que, si el model pot distingir patrons específics de cada variable i hi ha suficient variabilitat en les dades, els valors SHAP poden ser interpretats per separat (@lundberg2017; @molnar2020). Això permet observar com la quota de vot respon diferencialment a la renda individual i a la renda del conjunt de la llar, mantenint la validesa de la interpretació, encara que s'ha d'inspeccionar cuidadosament els valors SHAP per treure qualsevol conclusió.
+
 
 ### 5.4.1 Random Forest (RF)
 
