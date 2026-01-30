@@ -540,11 +540,42 @@ En síntesi, la validació del model XGBoos
 
 
 \newpage
+
 # 7. Conclusions
 
-- posar conclusions finals
+Aquest treball ha analitzat el comportament electoral a Catalunya durant el període 2015–2023 mitjançant una aproximació estadística i de machine learning basada en dades socioeconòmiques agregades a nivell de secció censal. L’objectiu principal ha estat identificar fins a quin punt les característiques socioeconòmiques del territori expliquen les diferències en el suport electoral als diferents partits, així com detectar patrons espacials i perfils electorals diferenciats.
+Per assolir aquest objectiu, s’ha optat per una estratègia metodològica mixta que combina tècniques exploratòries (Anàlisi de Correspondències), models estadístics interpretables (model logit aplicat a la proporció de vot per secció censal) i mètodes avançats de machine learning (Random Forest i XGBoost). Aquesta combinació permet equilibrar capacitat predictiva, interpretabilitat i robustesa dels resultats.
 
-- Furtherwork: predicció x secció censal + noves coses que pensem 
+## 7.1 Perfils socioeconòmics dels electorats
+
+Els resultats mostren de manera clara que el vot a Catalunya està fortament estructurat per variables socioeconòmiques objectives. L’Anàlisi de Correspondències permet identificar una estratificació social nítida entre els electorats dels diferents partits, configurant perfils diferenciats i consistents al llarg del temps. En aquest sentit, partits com JxCat es vinculen majoritàriament a seccions censals amb nivells de renda molt elevats i població més embellida. I el bloc CUP–ERC es vinculen majoritàriament a seccions censals amb nivells de renda elevats i menor desigualtat, mentre que el PSC esta molt relacionat amb SUMAR ambdos presenten un suport més intens en zones amb perfils socioeconòmics més baixos,joves i llars unipersolas. El PP ocupa una posició més afí a seccions amb indexs de Gini elevats, el que indica zones desiguals.
+
+Aquesta estratificació no és només descriptiva, sinó que es confirma quantitativament mitjançant els models estimats. Tant els models Random Forest com XGBoost identifiquen la renda, la desigualtat (índex de Gini) i la font principal d’ingressos com les variables amb major poder explicatiu. La coincidència entre ambdós algoritmes reforça la robustesa d’aquest resultat i suggereix que les relacions detectades no depenen d’un mètode concret, sinó que reflecteixen patrons estructurals del comportament electoral.
+
+## 7.2 Importància de les variables socioeconòmiques
+
+La renda emergeix de forma sistemàtica com la variable més rellevant en tots els models considerats. Tant en els models de machine learning com en els models mixtos logístics, increments en la renda mitjana de la secció censal s’associen amb canvis significatius en la probabilitat de vot a determinats partits. Les odds ratios estimades mitjançant LMER permeten quantificar aquests efectes i mostren diferències clares en la sensibilitat dels partits a aquesta variable.
+La desigualtat interna de la secció censal, mesurada mitjançant l’índex de Gini, també juga un paper rellevant, especialment per a partits associats a perfils socioeconòmics alts o ideològicament polaritzats. Aquest resultat indica que no només el nivell mitjà de renda és important, sinó també la seva distribució, aportant una visió més rica del context social en què es produeix el vot.
+Altres variables, com el percentatge de població no espanyola, resulten especialment rellevants per explicar el suport a partits com VOX o Ciutadans, mentre que tenen un impacte molt menor en formacions catalanistes. Aquest fet suggereix que determinades variables demogràfiques operen de manera diferencial segons el posicionament ideològic del partit.
+
+## 7.3 Patrons espacials i estructura territorial
+
+L’anàlisi espacial posa de manifest una clara divisió territorial a Catalunya, amb un eix est–oest que separa zones més benestants del litoral i l’àrea metropolitana de Barcelona de regions interiors amb perfils socioeconòmics més baixos. Aquest patró territorial es reflecteix de manera coherent en els resultats electorals i reforça la idea que el vot no pot entendre’s sense tenir en compte la dimensió espacial.
+La incorporació d’efectes aleatoris en els models LMER permet capturar part d’aquesta heterogeneïtat territorial, millorant l’ajust del model i evitant atribuir a les variables socioeconòmiques efectes que en realitat corresponen a diferències estructurals entre territoris. Això és especialment rellevant en un context com el català, on les dinàmiques polítiques i socials presenten una forta component territorial.
+
+## 7.4 Aportació metodològica
+
+Un dels principals valors afegits d’aquest treball és la combinació de metodologies diverses aplicades a una mateixa problemàtica. Els models de machine learning ofereixen una elevada capacitat explicativa —superant el 88% de variància explicada en alguns casos—, mentre que els models estadístics permeten una interpretació directa dels efectes mitjançant odds ratios. L’ús conjunt d’aquestes eines proporciona una visió més completa del fenomen analitzat que la que s’obtindria amb una sola aproximació.
+A més, l’ús de dades a nivell de secció censal permet una anàlisi espacial fina, minimitzant en part els problemes d’agregació presents en estudis basats en unitats territorials més grans. Tot i això, cal reconèixer que l’anàlisi continua sent agregada i que no permet inferir comportaments individuals de manera directa.
+
+## 7.5 Limitacions i línies futures
+
+Malgrat la robustesa dels resultats, aquest estudi presenta algunes limitacions. En primer lloc, l’ús de dades agregades pot donar lloc a biaixos ecològics. En segon lloc, no s’han incorporat variables més qualitatives, com el context polític específic de cada elecció, les campanyes electorals o el lideratge dels partits, que podrien explicar part de la variabilitat residual.
+Com a línies futures, seria especialment interessant complementar aquesta anàlisi amb dades individuals procedents d’enquestes, així com explorar models dinàmics que capturin canvis temporals més fins. També es podria aprofundir en l’ús dels models desenvolupats amb finalitats predictives o de simulació d’escenaris electorals.
+
+## 7.6 Conclusió final
+
+En conjunt, aquest treball demostra que el comportament electoral a Catalunya està profundament condicionat per l’estructura socioeconòmica del territori. Les diferències en renda, desigualtat i composició demogràfica generen perfils electorals clarament diferenciats, que es manifesten de manera consistent al llarg del temps i de l’espai. La combinació de models estadístics i tècniques de machine learning ha permès identificar aquests patrons amb un alt grau de detall i fiabilitat, aportant una contribució rellevant a l’anàlisi quantitativa del comportament electoral.
 
 \newpage
 
