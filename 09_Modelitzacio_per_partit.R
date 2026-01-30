@@ -335,28 +335,28 @@ for (partit in partits) {
   print(tbl)
 }
 
-## AMB PROBABILITAT
+## AMB PROBABILITAT (no se fina a quin punt es correcte/interpretable)
 
-taules_models <- list()
-
-for (partit in partits) {
-  
-  model_sel <- models_mixtes[[partit]]$model1 # POSAR MODEL QUE ESCOLLIM
-  
-  tbl <- tbl_regression(
-    model_sel,
-    exponentiate = FALSE,   
-    intercept = FALSE,
-    estimate_fun = function(x) scales::percent(plogis(x), accuracy = 0.1)
-  ) %>%
-    modify_header(label ~ "Variable") %>%
-    modify_caption(paste("Probabilitats per al partit:", partit))
-  
-  taules_models[[partit]] <- tbl
-  
-  cat("\n=============================\n")
-  cat("Taula per al partit:", partit, "\n")
-  cat("=============================\n")
-  print(tbl)
-}
+# taules_models <- list()
+# 
+# for (partit in partits) {
+#   
+#   model_sel <- models_mixtes[[partit]]$model1 # POSAR MODEL QUE ESCOLLIM
+#   
+#   tbl <- tbl_regression(
+#     model_sel,
+#     exponentiate = FALSE,   
+#     intercept = FALSE,
+#     estimate_fun = function(x) scales::percent(plogis(x), accuracy = 0.1)
+#   ) %>%
+#     modify_header(label ~ "Variable") %>%
+#     modify_caption(paste("Probabilitats per al partit:", partit))
+#   
+#   taules_models[[partit]] <- tbl
+#   
+#   cat("\n=============================\n")
+#   cat("Taula per al partit:", partit, "\n")
+#   cat("=============================\n")
+#   print(tbl)
+# }
 
