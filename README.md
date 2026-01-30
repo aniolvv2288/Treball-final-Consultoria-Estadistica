@@ -4,7 +4,8 @@ This repository contains the code, data workflows, and documentation for our fin
 
 ## 📖 Project Overview
 
-Spain elections through catalan censal sections
+This project analyses electoral behaviour in Catalonia using detailed voting results from Spanish general elections combined with socioeconomic and demographic data. By working at the census‑section level, it uncovers territorial patterns that are not visible in more aggregated analyses.
+The goal is to understand how political support is distributed across the territory, how it changes over time, and which social and economic factors help explain these differences. The project integrates data processing, spatial analysis, and statistical modelling to provide a clearer picture of the relationship between social context and voting outcomes.
 
 ## 🔑 Key Components
 
