@@ -158,7 +158,7 @@ Paral·lelament, els fitxers “03” proporcionaven el diccionari de candidatur
 
 \vspace{0.75cm}
 
-D'altra banda, pel que fa a les variables socioeconòmiques i demogràfiques, les vam obtenir de l’INE, concretament de l’apartat dedicat a les condicions de vida per secció censal [@INE_condiciones_vida]. Per a cada província catalana vam descarregar quatre bases de dades complementàries, cadascuna amb un conjunt específic d’indicadors: una amb l’índex de Gini i la ràtio 80/20 de distribució de la renda; una altra amb la procedència dels ingressos; una tercera amb variables demogràfiques com l’edat mitjana o el percentatge de població espanyola resident; i una darrera amb dades de renda mitjana —per unitat de consum, personal i de la llar.
+D'altra banda, pel que fa a les variables socioeconòmiques i demogràfiques, les vam obtenir de l’INE, concretament de l’apartat dedicat a les condicions de vida per secció censal [@INE_condiciones_vida]. Per a cada província catalana vam descarregar quatre bases de dades complementàries, cadascuna amb un conjunt específic d’indicadors: una amb l’índex de Gini i la ràtio 80/20 de distribució de la renda; una altra amb la procedència dels ingressos; una tercera amb variables demogràfiques com l’edat mitjana o el percentatge de població espanyola resident; i una darrera amb dades de renda mitjana per unitat de consum, personal i de la llar.
 
 En el cas de les comarques gironines, el tractament va requerir una atenció addicional, ja que la codificació de les seccions censals no seguia exactament el mateix format que a la resta del territori.
 
@@ -818,7 +818,7 @@ for (i in seq_along(llista_eleccions)) {
 plots_ca$`Desembre 2015`$biplot
 ```
 
-Com mostra la Figura 1, les dues primeres dimensions expliquen el 88,9% de la variabilitat total, cosa que permet identificar amb claredat les associacions entre partits polítics i variables socioeconòmiques. Tot i això, VOX i Cs presenten una qualitat de representació molt baixa —inferior a 0,20 en termes de $cos^2$—, fet que limita la fiabilitat de la seva posició en el mapa factorial i en dificulta la interpretació.
+Com mostra la Figura 1, les dues primeres dimensions expliquen el 88,9% de la variabilitat total, cosa que permet identificar amb claredat les associacions entre partits polítics i variables socioeconòmiques. Tot i això, VOX i Cs presenten una qualitat de representació molt baixa inferior a 0,20 en termes de $cos^2$, fet que limita la fiabilitat de la seva posició en el mapa factorial i en dificulta la interpretació.
 
 L’anàlisi factorial mostra que la Dimensió 1 està principalment explicada pels partits CONV./JxCAT i PSC/PSOE, a més de ERC que presenten les contribucions més elevades. Aquesta dimensió s’associa sobretot amb variables socioeconòmiques relacionades amb la renda molt baixa i molt alta, així com amb nivells elevats de desigualtat (Gini alt), indicant un eix de diferenciació socioeconòmica clara.
 La Dimensió 2 està dominada principalment pel PP a més de ERC i ECP/SUMAR, amb contribucions rellevants també de variables de renda i alguns grups d’edat. Aquest eix sembla captar diferències més vinculades a perfils socials intermedis i estructurals.
@@ -834,7 +834,7 @@ Considerant únicament les categories amb bona qualitat de representació, l’a
 plots_ca$`Juny 2016`$biplot
 ```
 
-Les dues primeres dimensions expliquen el 91.2% de la variabilitat total, cosa que permet identificar amb claredat les associacions entre partits polítics i variables socioeconòmiques. Respecte les eleccions anteriors podem veure una millor representació de VOX, tot i que encara no acaba de estar ben representada. En cambi Cs presenta una qualitat de representació molt baixa —inferior a 0,20 en termes de $cos^2$—, fet que limita la fiabilitat de la seva posició en el mapa factorial i en dificulta la interpretació.
+Les dues primeres dimensions expliquen el 91.2% de la variabilitat total, cosa que permet identificar amb claredat les associacions entre partits polítics i variables socioeconòmiques. Respecte les eleccions anteriors podem veure una millor representació de VOX, tot i que encara no acaba de estar ben representada. En cambi Cs presenta una qualitat de representació molt baixa inferior a 0,20 en termes de $cos^2$, fet que limita la fiabilitat de la seva posició en el mapa factorial i en dificulta la interpretació.
 
 L’anàlisi factorial mostra que la Dimensió 1 està principalment explicada pels partits CONV./JxCAT i PSC/PSOE, a més de ERC que presenten les contribucions més elevades. Aquesta dimensió s’associa sobretot amb variables socioeconòmiques relacionades amb la renda molt baixa i molt alta, així com amb nivells elevats de desigualtat (Gini alt), indicant un eix de diferenciació socioeconòmica clara.
 La Dimensió 2 està dominada principalment pel PP a més de ERC i ECP/SUMAR, amb contribucions rellevants també de variables de renda i alguns grups d’edat. Aquest eix sembla captar diferències més vinculades a perfils socials intermedis i nivell d'immigració.
@@ -849,7 +849,7 @@ Considerant únicament les categories amb bona qualitat de representació, l’a
 plots_ca$`Abril 2019`$biplot
 ```
 
-Les dues primeres dimensions expliquen el 92,8% de la variabilitat total, cosa que permet identificar amb claredat les associacions entre partits polítics i variables socioeconòmiques. Ara sembla que totes les variables estan ben representades en termes de $cos^2$— (totes >0.5), fet que aporta fiabilitat de la seva posició en el mapa factorial i en dificulta la interpretació.
+Les dues primeres dimensions expliquen el 92,8% de la variabilitat total, cosa que permet identificar amb claredat les associacions entre partits polítics i variables socioeconòmiques. Ara sembla que totes les variables estan ben representades en termes de $cos^2$ (totes >0.5), fet que aporta fiabilitat de la seva posició en el mapa factorial i en dificulta la interpretació.
 
 L’anàlisi factorial mostra que la Dimensió 1 està principalment explicada pels partits CONV./JxCAT i PSC/PSOE, a més de ERC que presenten les contribucions més elevades. Aquesta dimensió s’associa sobretot amb variables socioeconòmiques relacionades amb la renda molt baixa i molt alta, així com amb nivells elevats de desigualtat (Gini alt i baix), indicant un eix de diferenciació socioeconòmica clara.
 La Dimensió 2 està dominada principalment pel PP a més de ERC i ECP/SUMAR, amb contribucions rellevants també de variables de desigualtat gini, renda i immigració. Aquest eix sembla captar diferències més vinculades a perfils socials amb desigualtats i estructurals.
@@ -868,7 +868,7 @@ L’anàlisi mostra que CONV./JxCAT se situa associat a seccions censals amb niv
 plots_ca$`Novembre 2019`$biplot
 ```
 
-Les dues primeres dimensions expliquen el 93.4% de la variabilitat total, cosa que permet identificar amb claredat les associacions entre partits polítics i variables socioeconòmiques. Totes les variables estan ben representades en termes de $cos^2$— (totes >0.5), fet que aporta fiabilitat de la seva posició en el mapa factorial i en dificulta la interpretació. Podem destacar l'aparició de la CUP com a partit ben representat.
+Les dues primeres dimensions expliquen el 93.4% de la variabilitat total, cosa que permet identificar amb claredat les associacions entre partits polítics i variables socioeconòmiques. Totes les variables estan ben representades en termes de $cos^2$ (totes >0.5), fet que aporta fiabilitat de la seva posició en el mapa factorial i en dificulta la interpretació. Podem destacar l'aparició de la CUP com a partit ben representat.
 
 L’anàlisi factorial mostra que la Dimensió 1 està principalment explicada pels partits CONV./JxCAT i PSC/PSOE, a més de ERC que presenten les contribucions més elevades. Aquesta dimensió s’associa sobretot amb variables socioeconòmiques relacionades amb la renda molt baixa i molt alta, així com amb nivells elevats de desigualtat (Gini alt i baix), indicant un eix de diferenciació socioeconòmica clara.
 La Dimensió 2 està dominada principalment pel PP i ERC, podem destacar la caiguda en contribució de ECP/SUMAR respecte eleccions anteriors, amb contribucions rellevants també de variables de renda i nivells d'immigració. Aquest eix sembla captar diferències més vinculades a desigualtats socials i estructurals.
@@ -885,7 +885,7 @@ L’anàlisi mostra que CONV./JxCAT se situa associat a seccions censals amb niv
 plots_ca$`Juliol 2023`$biplot
 ```
 
-Les dues primeres dimensions expliquen el 92.1% de la variabilitat total, cosa que permet identificar amb claredat les associacions entre partits polítics i variables socioeconòmiques. Tot i això, ECP/SUMAR presenta una qualitat de representació molt baixa —inferior a 0,20 en termes de $cos^2$—, fet que limita la fiabilitat de la seva posició en el mapa factorial i en dificulta la interpretació. Destaca que a les primeres eleccions tenía una contribució alta i que poc a poc ha anant baixat amb l'augment de constribucions d'altres partits. El mateix cas amb Cs que directament desapareix de l'analisi.
+Les dues primeres dimensions expliquen el 92.1% de la variabilitat total, cosa que permet identificar amb claredat les associacions entre partits polítics i variables socioeconòmiques. Tot i això, ECP/SUMAR presenta una qualitat de representació molt baixa inferior a 0,20 en termes de $cos^2$, fet que limita la fiabilitat de la seva posició en el mapa factorial i en dificulta la interpretació. Destaca que a les primeres eleccions tenía una contribució alta i que poc a poc ha anant baixat amb l'augment de constribucions d'altres partits. El mateix cas amb Cs que directament desapareix de l'analisi.
 
 
 L’anàlisi factorial mostra que la Dimensió 1 està principalment explicada pels partits CONV./JxCAT, VOX i PSC/PSOE, en aquestes eleccions també contribueix VOX, que presenta les contribucions elevades. Aquesta dimensió s’associa sobretot amb variables socioeconòmiques relacionades amb les rendes i edat, indicant un eix de diferenciació socioeconòmica clara.
@@ -1269,7 +1269,7 @@ for (partit in partits) {
   model_sel <- models_mixtes[[partit]]$model1
   
   cat("\n===========================================\n")
-  cat("VALIDACIÓ DEL MODEL —", partit, "\n")
+  cat("VALIDACIÓ DEL MODEL ", partit, "\n")
   cat("===========================================\n")
   
   # Layout 2x3 per mostrar els 5 gràfics junts
@@ -1278,7 +1278,7 @@ for (partit in partits) {
   # 1. Residus vs ajustats
   plot(
     residuals(model_sel, type = "pearson") ~ fitted(model_sel),
-    main = paste("Residus vs Valors ajustats —", partit),
+    main = paste("Residus vs Valors ajustats ", partit),
     xlab = "Valors ajustats",
     ylab = "Residus (Pearson)"
   )
@@ -1288,27 +1288,27 @@ for (partit in partits) {
   hist(
     residuals(model_sel, type = "pearson"),
     breaks = 15,
-    main = paste("Histograma dels residus —", partit),
+    main = paste("Histograma dels residus ", partit),
     xlab = "Residus (Pearson)"
   )
   
   # 3. QQ-plot
   qqnorm(
     residuals(model_sel, type = "pearson"),
-    main = paste("QQ-plot dels residus —", partit)
+    main = paste("QQ-plot dels residus ", partit)
   )
   qqline(residuals(model_sel, type = "pearson"), col = "red")
   
   # 4. ACF
   acf(
     residuals(model_sel, type = "pearson"),
-    main = paste("ACF dels residus —", partit)
+    main = paste("ACF dels residus ", partit)
   )
   
   # 5. PACF
   pacf(
     residuals(model_sel, type = "pearson"),
-    main = paste("PACF dels residus —", partit)
+    main = paste("PACF dels residus ", partit)
   )
   
   # (Opcional) espai buit al sisè panell
@@ -1345,8 +1345,13 @@ Com a conseqüència, tot i que els models permeten identificar patrons generals
 
 Per millorar l’adequació dels models, es podrien considerar alternatives més complexes, com ara models lineals generalitzats amb distribucions adequades per a proporcions, models espacials o autoregressius per capturar dependències geogràfiques, o bé la inclusió d’interaccions i transformacions no lineals de les variables explicatives.
 
+En aquest treball, el BIC s’ha utilitzat com a criteri principal per seleccionar el model òptim per a cada partit, prioritzant solucions més parsimonioses que ofereixin un bon equilibri entre qualitat d’ajust i simplicitat estructural. Una altra mètrica rellevant és el nombre de paràmetres estimats en cada model, que inclou tant els efectes fixos com els components de variància dels efectes aleatoris. Aquesta mesura permet avaluar explícitament el cost en complexitat de cada especificació i contextualitzar les diferències observades en AIC i BIC.
 
-Tot i que els models lineals i mixtes aplicats als percentatges de vot no mostren un ajust perfecte, les funcions d’autocorrelació (ACF i PACF) i l’existència d’autocorrelació significativa—, els resultats obtinguts són coherent amb les tendències identificades per altres mètodes d’anàlisi.
+Addicionalment, s’ha calculat el coeficient de correlació intraclasse (ICC) per als models mixtes, amb l’objectiu de quantificar la proporció de la variància total atribuïble als efectes aleatoris associats a les seccions censals i/o a les eleccions. Valors elevats d’ICC indiquen que una part substancial de la variabilitat del vot es deu a diferències estructurals entre unitats territorials o períodes electorals, justificant l’ús de models jeràrquics en lloc de models lineals simples.
+
+Malgrat que les mètriques d’ajust i els criteris d’informació suggereixen que alguns models presenten limitacions ja sigui per una capacitat explicativa moderada o per la necessitat d’introduir components aleatoris per capturar dependències no observades, els patrons estimats són consistents amb els resultats obtinguts mitjançant altres mètodes, com l’anàlisi descriptiva i la comparació directa de percentatges de vot per grups sociodemogràfics.
+
+Així, els models no només es poden interpretar com a eines predictives, sinó sobretot com a instruments analítics per sintetitzar i validar relacions estructurals entre el context sociodemogràfic i el comportament electoral. En aquest sentit, tot i les imperfeccions en termes de residus i autocorrelació, els resultats reforcen qualitativament les conclusions extretes per vies alternatives d’anàlisi.
 
 ```{r}
 ################################################################################
@@ -1377,8 +1382,10 @@ for (partit in partits) {
       Variable = label,
       `OR` = estimate,
       `IC 95%` = ci,
-      `p-valor` = p.value
-    )
+      `p-valor` = p.value)%>%
+    mutate(across(c(OR), ~ round(as.numeric(.), 2)))%>%
+    mutate(across(c(`p-valor`), ~ round(as.numeric(.), 4)))%>%
+    mutate(across(everything(), ~ ifelse(is.na(.), "", .)))
   
   # Pintem amb kable (LaTeX-friendly)
   print(kable(
@@ -1443,7 +1450,7 @@ La incorporació d’efectes aleatoris en els models LMER permet capturar part d
 
 ## 7.4 Aportació metodològica
 
-Un dels principals valors afegits d’aquest treball és la combinació de metodologies diverses aplicades a una mateixa problemàtica. Els models de machine learning ofereixen una elevada capacitat explicativa —superant el 88% de variància explicada en alguns casos—, mentre que els models estadístics permeten una interpretació directa dels efectes mitjançant odds ratios. L’ús conjunt d’aquestes eines proporciona una visió més completa del fenomen analitzat que la que s’obtindria amb una sola aproximació.
+Un dels principals valors afegits d’aquest treball és la combinació de metodologies diverses aplicades a una mateixa problemàtica. Els models de machine learning ofereixen una elevada capacitat explicativa superant el 88% de variància explicada en alguns casos, mentre que els models estadístics permeten una interpretació directa dels efectes mitjançant odds ratios. L’ús conjunt d’aquestes eines proporciona una visió més completa del fenomen analitzat que la que s’obtindria amb una sola aproximació.
 A més, l’ús de dades a nivell de secció censal permet una anàlisi espacial fina, minimitzant en part els problemes d’agregació presents en estudis basats en unitats territorials més grans. Tot i això, cal reconèixer que l’anàlisi continua sent agregada i que no permet inferir comportaments individuals de manera directa.
 
 ## 7.5 Limitacions i línies futures
@@ -1636,6 +1643,11 @@ p1+p2
 ```
 
 \newpage
+
+## D. Codi
+
+Per visualitzar i explorar de manera interactiva els resultats del projecte, i poder interactuar amb les dades i les anàlisis de manera senzilla i intuïtiva, vam desenvolupar una aplicació Shiny. L'aplicació completa es pot consultar a: [Aplicació Shiny del projecte.](https://jordianguera.shinyapps.io/ComportamentElectoral/)
+
 ## C. Codi
 
 Per assegurar la traçabilitat i la reproduïbilitat de totes les anàlisis, vam desenvolupar el projecte íntegrament a GitHub. El repositori complet es pot consultar a: [Repositori Github del projecte.](https://github.com/aniolvv2288/Treball-final-Consultoria-Estadistic)
