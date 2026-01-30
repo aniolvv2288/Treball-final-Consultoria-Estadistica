@@ -1,6 +1,6 @@
-# Multivariate and Spatial Analysis of Mortality in Catalonia using INLA
+# Electoral behaviour analysis in Catalonia: evolution and influence socioeconomic and demographic factors
 
-This repository contains the code, data workflows, and documentation for our final project in Statistical Consulting at the Universitat Autònoma de Barcelona (UAB), including data analysis, INLA modeling, and interactive visualization with Shiny.
+This repository contains the code, data workflows, and documentation for our final project in Statistical Consulting at the Universitat Autònoma de Barcelona (UAB), including data analysis, linear and mixed modeling, machine learning and interactive visualization with Shiny.
 
 ## 📖 Project Overview
 
@@ -8,12 +8,10 @@ Posar text
 
 ## 🔑 Key Components
 
-- **Data Cleaning & Preprocessing:** R scripts for importing, cleaning, formatting, and preparing mortality data (ABS, regions, sex, age groups, socioeconomic index).
-- **Data Imputation:** Strategies to handle missing values or inconsistencies in demographic and socioeconomic variables (e.g., multiple imputation with `mice`).
-- **Outliers Exploration:** Identification and evaluation of extreme values in mortality by ABS or age groups, using scatterplots and boxplots.
-- **Exploratory Data Analysis (EDA):** Multivariate descriptive analysis (tables, heatmaps, PCA, clustering) to explore mortality patterns by sex, age, and socioeconomic deprivation.
-- **Multivariate & Mixed Models:** Application of multivariate regression and hierarchical mixed models (Poisson/NegBin) with random effects for ABS and health regions.
-- **Spatial Modeling with INLA:** Construction of spatial mortality models with INLA using the BYM2 technique for ABS and SPDE for continuous fields, incorporating temporal effects (RW1/RW2).
+- **Data Cleaning & Preprocessing:** R scripts for importing, cleaning, formatting, and preparing data.
+- **Exploratory Data Analysis (EDA):** Multivariate descriptive analysis (tables, maps, CA) to explore socioeconomic and electoral patterns.
+- **Linear and Mixed Models:** Application of multivariate regression and hierarchical mixed models (Poisson/NegBin) with random effects for ABS and health regions.
+- **Machine Learning and SHAP:** Random Forest and XGBoost models. SHAP values shown to interpret effects on the independent variable.
 - **Reproducibility:** Modular R scripts, complete report in R Markdown, version control via GitHub, and Shiny application to share interactive results (maps, trends, tables).
 
 
