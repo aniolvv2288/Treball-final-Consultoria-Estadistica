@@ -1004,10 +1004,7 @@ En conjunt, aquesta estratègia garanteix tant la qualitat de l’ajust estadís
 
 ## 6.2 Validació del model lineal òptim
 
-#### Model basal 
-
-```{r}
-
+```{r, echo=FALSE, include=FALSE}
 ################################################################################
 # ----- INCORPORACIÓ DADES I TRANSFORMACIÓ A LOGIT -----
 ################################################################################
@@ -1199,7 +1196,7 @@ for (partit in partits) {
     )
   }
   
-  colnames(df_res)[colnames(df_res) == "n_param"] <- "# Paràm."
+  colnames(df_res)[colnames(df_res) == "n_param"] <- "Núm. Paràm."
   colnames(df_res)[colnames(df_res) == "model"] <- "Model"
   
   print(df_res)
@@ -1226,7 +1223,9 @@ for (partit in names(resultats_models)) {
   
   idx_best <- which.min(df$BIC)
   
-  df$`Model òptim` <- ifelse(seq_len(nrow(df)) == idx_best, "⭐", "")
+  # Eliminem la columna "Model òptim"
+  # (si existeix d'iteracions anteriors)
+  df$`Model òptim` <- NULL
   
   kbl_tbl <- df %>%
     kbl(
@@ -1243,42 +1242,40 @@ for (partit in names(resultats_models)) {
     row_spec(
       idx_best,
       bold = TRUE,
-      color = "white",
-      background = colors_partits[partit]
+      underline = TRUE,   # <<–– SUBRATLLAT DEL MILLOR MODEL
+      color = "black"
     ) %>%
     add_header_above(
-      c(" " = 1, "Mètriques dels models" = 4, " " = 1),
+      c(" " = 1, "Mètriques dels models" = 4),
       bold = TRUE,
       background = "#f0f0f0"
     ) %>%
     column_spec(1, bold = TRUE) %>%
-    column_spec(ncol(df), width = "3em") %>%
     kable_classic(html_font = "Helvetica") %>%
     footnote(
-      general = "⭐ indica el model amb millor BIC.",
+      general = "El model subratllat és el que presenta el BIC més baix.",
       general_title = "",
       footnote_as_chunk = TRUE
     )
   
   taules_kable[[partit]] <- kbl_tbl
 }
+```
 
-taules_kable$`CONV./JxCAT`
 
-
-################################################################################
-# ----- VALIDACIÓ DEL MODEL ESCOLLIT -----
-################################################################################
-
+```{r}
 for (partit in partits) {
   
-  model_sel <- models_mixtes[[partit]]$model1   # POSAR MODEL ESCOLLIT
+  model_sel <- models_mixtes[[partit]]$model1
   
   cat("\n===========================================\n")
-  cat("Validació del model per al partit:", partit, "\n")
+  cat("VALIDACIÓ DEL MODEL —", partit, "\n")
   cat("===========================================\n")
   
-  # Residus vs ajustats
+  # Layout 2x3 per mostrar els 5 gràfics junts
+  par(mfrow = c(2, 3))
+  
+  # 1. Residus vs ajustats
   plot(
     residuals(model_sel, type = "pearson") ~ fitted(model_sel),
     main = paste("Residus vs Valors ajustats —", partit),
@@ -1287,7 +1284,7 @@ for (partit in partits) {
   )
   abline(h = 0, col = "red", lty = 2)
   
-  # Histograma dels residus
+  # 2. Histograma
   hist(
     residuals(model_sel, type = "pearson"),
     breaks = 15,
@@ -1295,24 +1292,27 @@ for (partit in partits) {
     xlab = "Residus (Pearson)"
   )
   
-  # QQ-plot
+  # 3. QQ-plot
   qqnorm(
     residuals(model_sel, type = "pearson"),
     main = paste("QQ-plot dels residus —", partit)
   )
   qqline(residuals(model_sel, type = "pearson"), col = "red")
   
-  # ACF
+  # 4. ACF
   acf(
     residuals(model_sel, type = "pearson"),
     main = paste("ACF dels residus —", partit)
   )
   
-  # PACF
+  # 5. PACF
   pacf(
     residuals(model_sel, type = "pearson"),
     main = paste("PACF dels residus —", partit)
   )
+  
+  # (Opcional) espai buit al sisè panell
+  plot.new()
 }
 ```
 
@@ -1349,19 +1349,18 @@ Per millorar l’adequació dels models, es podrien considerar alternatives més
 Tot i que els models lineals i mixtes aplicats als percentatges de vot no mostren un ajust perfecte, les funcions d’autocorrelació (ACF i PACF) i l’existència d’autocorrelació significativa—, els resultats obtinguts són coherent amb les tendències identificades per altres mètodes d’anàlisi.
 
 ```{r}
-
-
 ################################################################################
 # ----- VISUALITZACIÓ TAULES PEL MODEL ESCOLLIT -----
 ################################################################################
 
-## AMB ODDS-RATIO
-
-taules_models <- list()
+library(gtsummary)
+library(dplyr)
+library(knitr)
+library(kableExtra)
 
 for (partit in partits) {
   
-  model_sel <- models_mixtes[[partit]]$model1 # POSAR MODEL QUE ESCOLLIM
+  model_sel <- models_mixtes[[partit]]$model1
   
   tbl <- tbl_regression(
     model_sel,
@@ -1371,14 +1370,29 @@ for (partit in partits) {
     modify_header(label ~ "Variable") %>%
     modify_caption(paste("Coeficients (OR) per al partit:", partit))
   
-  taules_models[[partit]] <- tbl
+  # Extraiem el cos de la taula de gtsummary
+  df_tbl <- tbl$table_body %>%
+    select(label, estimate, ci, p.value) %>%
+    rename(
+      Variable = label,
+      `OR` = estimate,
+      `IC 95%` = ci,
+      `p-valor` = p.value
+    )
   
-  cat("\n=============================\n")
-  cat("Taula per al partit:", partit, "\n")
-  cat("=============================\n")
-  print(tbl)
+  # Pintem amb kable (LaTeX-friendly)
+  print(kable(
+    df_tbl,
+    format = "markdown",
+    booktabs = TRUE,
+    caption = paste("Coeficients (OR) per al partit:", partit),
+    digits = 3,
+    align = "lccc"
+  ) %>%
+    kable_styling(
+      latex_options = c("hold_position", "striped")
+    ))
 }
-
 ```
 
 
@@ -1621,7 +1635,7 @@ p2 <- plots_ca$`Juliol 2023`$cols_contrib
 p1+p2
 ```
 
-
+\newpage
 ## C. Codi
 
 Per assegurar la traçabilitat i la reproduïbilitat de totes les anàlisis, vam desenvolupar el projecte íntegrament a GitHub. El repositori complet es pot consultar a: [Repositori Github del projecte.](https://github.com/aniolvv2288/Treball-final-Consultoria-Estadistic)
