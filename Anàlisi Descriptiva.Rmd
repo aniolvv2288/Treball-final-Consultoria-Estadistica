@@ -36,10 +36,12 @@ library(knitr)
 dades<- readRDS("dades_finals.rds")
 ```
 
-## DESCRIPCIÓ BASE DE DADES
 
-#### Descripció NA
-```{r, fig.pos='H'}
+Aquest apartat serveix com a pas prèvi a la modelització, per descriure la base de dades final i situar les dades en el context polític i socioeconòmic estudiat. 
+
+### 5.1.1 Descripció valors perduts
+
+```{r, fig.pos = 'htbp', fig.cap='Distribució valors perduts'}
 na_summary <- dades %>%
   summarise(across(
     everything(),
@@ -64,14 +66,12 @@ kable(
 
 ```
 
+La taula presenta les variables en ordre decreixent segons la freqüència de valors perduts de valors perduts *NA*. Totes les variables tenen entre un $0 \%$ i un $1 \%$ de valors perduts. 
 
-## PANORAMA ELECTORAL
+### 5.1.2 PANORAMA ELECTORAL
 
-### Evolució del total de vots de cada partit
-
-#### Gràfic per partit
-Els gràfics surten descentrats en compilar, arreglar-ho.
-```{r, fig.align='center', fig.pos='H'}
+#### Evolució del vot per partit en un mateix gràfic 
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Evolució vot per partit'}
 vots_partit_eleccio <- dades %>%
   group_by(eleccio, sigles) %>%
   summarise(
@@ -79,19 +79,6 @@ vots_partit_eleccio <- dades %>%
     .groups = "drop"
   )
 
-xyplot(
-  vots_totals ~ eleccio | sigles,
-  data = vots_partit_eleccio,
-  type = "o",
-  layout = c(3, 3),
-  xlab = "Elecció",
-  ylab = "Vots totals",
-  main = "Evolució del vot per partit (2015–2023)",
-  scales = list(x = list(rot = 45))
-)
-```
-#### Evolució del vot per partit en un mateix gràfic 
-```{r, fig.align='center', fig.pos='H'}
 # Paleta de colors per partits
 colors_partits <- c(
   "PSC/PSOE"    = "#E30613",
@@ -123,12 +110,13 @@ ggplot(vots_partit_eleccio,
     axis.text.x = element_text(angle = 45, hjust = 1)
   )
 ```
+Aquest gràfic presenta l'evolució dels partits al llarg de les eleccions. S'observa per exemple tendències alcistes del PSC i de VOX. 
 
-### Evolució del vot per blocs de partits
+### 5.1.3 Evolució del vot per blocs de partits
 
 #### Evolució del vot per blocs ideologics (esquerra-dreta)
 
-```{r, fig.align='center', fig.pos='H'}
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Evolució bot segons vots ideològics'}
 vots_ideologia <- dades %>%
   group_by(eleccio, ideologia) %>%
   summarise(vots_totals = sum(vots, na.rm = TRUE), .groups = "drop")
@@ -148,11 +136,11 @@ ggplot(vots_ideologia,
   theme_minimal()
 
 ```
-
+A Catalunya, independentment de l'elecció, hi predomina el vot a partits catalogats com d'esquerres. 
 
 #### Evolució del vot per blocs independentistes i no independentistes
 
-```{r, fig.align='center', fig.pos='H'}
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Evolució vot segons independentisme'}
 vots_indep <- dades %>%
   group_by(eleccio, independentista) %>%
   summarise(vots_totals = sum(vots, na.rm = TRUE), .groups = "drop")
@@ -163,7 +151,7 @@ ggplot(vots_indep,
   scale_fill_manual(values = c("Sí" = "#FF3030", "No" = "#00BFFF")) +
   scale_y_continuous(labels = comma) +
   labs(
-    title = "Evolució del vot segons posicionament territorial",
+    title = "Evolució vot segons independentisme",
     x = "Elecció",
     y = "Nombre total de vots",
     fill = "Independentista"
@@ -171,14 +159,14 @@ ggplot(vots_indep,
   theme_minimal()
 
 ```
+En aquesta figura podem veure l'evolució del vot a partits independentistes. Cal recordar que aquest estudi es fa a partir dels resultats de les eleccions generals del govern espanyol però només contemplant dades provinents de Catalunya. Comentem aquest fet, ja que els vots a catalunya de partits independentistes acostumen a ser mes baixos en aquestes eleccions que en les autonòmiques. 
 
+### 5.1.4 Característiques de les seccions censals
 
-## Característiques de les seccions censals
-
-### Distribucions de les variables socioeconòmiques clau
+A continuació es mostra la distribució de diferents variables econòmiques i demogràfiques a nivell de secció censal. 
 
 #### Estructura demogràfica
-```{r, fig.height=4, fig.width=8, fig.pos='H'}
+```{r, fig.height=4, fig.width=8, fig.pos = 'htbp', fig.cap='Estructura demogràfica'}
 p_poblacio <- ggplot(dades, aes(x = Población)) +
   geom_histogram(bins = 30, fill = "#2563EB", alpha = 0.8) +
   scale_x_continuous(labels = comma) +
@@ -193,7 +181,7 @@ p_edat <- ggplot(dades, aes(x = dades$`Edad media de la población`)) +
   geom_histogram(bins = 30, fill = "#1E40AF", alpha = 0.8) +
   labs(
     title = "Edat mitjana",
-    x = "Anys",
+    x = "Edat",
     y = "Seccions"
   ) +
   theme_minimal()
@@ -204,7 +192,7 @@ p_poblacio | p_edat
 
 
 #### Renda bruta 
-```{r, fig.align='center', fig.pos='H'}
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Renda bruta'}
 p_persona <- ggplot(dades, aes(x = `Renta bruta media por persona`)) +
   geom_histogram(bins = 30, fill = "#16A34A", alpha = 0.8) +
   scale_x_continuous(labels = comma) +
@@ -229,9 +217,9 @@ p_persona + p_llar
 ```
 
 
-#### Renda por unitat de consum
+#### Renda per unitat de consum
 
-```{r, fig.align='center', fig.pos='H'}
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Renda per unitat de consum'}
 
 p_mitjana <- ggplot(dades, aes(x = `Media de la renta por unidad de consumo`)) +
   geom_histogram(bins = 30, fill = "#7C3AED", alpha = 0.8) +
@@ -254,14 +242,12 @@ p_mediana <- ggplot(dades, aes(x = `Mediana de la renta por unidad de consumo`))
   theme_minimal()
 
 p_mitjana + p_mediana
-
 ```
+
 
 #### Mesures de desigualtat
 
-```{r, fig.align='center', fig.pos='H'}
-# Panell de 2 gràfics amb la distribució de l'index gini i la del P80/P20. Estaria bé que l'histograma mostrés amb linies verticals de colors per exemple, quin son els nivells a partir dels quals considerem desigualtat (en l'index gini he fet servir aquest punts de tall breaks = "c(-Inf, 25, 35, Inf), abels = c( "Baixa desigualtat", "Desigualtat mitjana", "Alta desigualtat" 
-
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Mesures desigualtat'}
 p_mitjana <- ggplot(dades, aes(x = `Media de la renta por unidad de consumo`)) +
   geom_histogram(bins = 30, fill = "#7C3AED", alpha = 0.8) +
   scale_x_continuous(labels = comma) +
@@ -287,11 +273,11 @@ p_mitjana + p_mediana
 ```
 
 
-## Vot i context socioecònomic
+### 5.1.5 Vot i context socioecònomic
 
-### Vot segons nivell socioeconòmic (variables categòriques)
+#### Vot segons nivell socioeconòmic (variables categòriques)
 
-```{r, fig.align='center', fig.pos='H'}
+```{r, fig.align='center', fig.pos = 'htbp'}
 plot_vot_factor <- function(var, label_x, show_legend = TRUE) {
   p <- dades %>%
     filter(!is.na({{ var }})) %>%   
@@ -345,20 +331,21 @@ p_edat <- plot_vot_factor(
 
 
 #### Renda bruta per persona i edat mitjana
-```{r,fig.align='center', fig.pos='H'}
+
+```{r,fig.align='center', fig.pos = 'htbp', fig.cap='Renda bruta per persona i edat mitjana'}
 p_renda | p_edat
 ```
 
 
 #### Gini I Immigració
-```{r,fig.align='center', fig.pos='H'}
+
+```{r,fig.align='center', fig.pos = 'htbp', fig.cap='Gini i Immigració'}
 p_gini | p_imm
 ```
 
-### Ideologia i vot independentista segons variables socioeconòmiques
+#### Ideologia i vot independentista segons variables socioeconòmiques
 
-Afegir per edat i dividir-ho en 4 panells (un per cada variable de l'eix X. Renda bruta per persona, desigualtat, immigració, edat)
-```{r, fig.align='center', fig.pos='H'}
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Ideologia i vot independentista segons variables socioeconòmiques'}
 colors_indep <- c(
   "Sí" = "#B91C1C",   
   "No" = "#1D4ED8"    
@@ -452,24 +439,28 @@ p_indep_edat <- plot_blocs_factor(
 
 
 #### Renda
-```{r, fig.align='center', fig.pos='H'}
+
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Renda segons blocs'}
 (p_ideo_renda | p_indep_renda) 
 ```
 
 #### Gini
-```{r, fig.align='center', fig.pos='H'}
+
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Gini segons blocs'}
 (p_ideo_gini  | p_indep_gini) 
 ```
 
 
 #### Immigració
-```{r, fig.align='center', fig.pos='H'}
+
+```{r, fig.align='center', fig.pos = 'htbp', fig.cap='Immigració segons blocs'}
 (p_ideo_imm   | p_indep_imm)  
 ```
 
 
 #### Edat mitjana
-```{r,fig.align='center', fig.pos='H'}
+
+```{r,fig.align='center', fig.pos = 'htbp', fig.cap='Edat mitjana segons blocs'}
 (p_ideo_edat  | p_indep_edat)
 ```
 
