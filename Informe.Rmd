@@ -215,7 +215,7 @@ La taula presenta les variables en ordre decreixent segons la freqüència de va
 
 \newpage
 
-### 5.1.2 PANORAMA ELECTORAL
+### 5.1.2 Panorama electoral
 
 #### Evolució del vot per partit en un mateix gràfic 
 
@@ -901,13 +901,28 @@ Considerant únicament les categories amb bona qualitat de representació, l’a
 
 ## 5.3 Modelització estadística
 
-### 5.3.1 Selecció de models
+### 5.3.1 Selecció de models mixtes
 
-ÈRIC TEXTO EXPLICANT ELS DIFERENTS MODELS CONTEMPLATS I COM HEM SELECCIONAT EL MILLOR (BORREU LA FRASE)
+Atesa la naturalesa de les dades, amb observacions repetides a nivell de secció censal al llarg de les eleccions, vam utilitzar models lineals mixtes. Aquests models permeten combinar efectes fixos (associats a característiques socioeconòmiques observables de cada secció) amb efectes aleatoris que capturen diferències no observades. Ens va semblar coherent pensar que cada secció censal pot presentar una certa “personalitat política” pròpia, mentre que cada elecció té un context específic. Aquest fet pot desplaçar el nivell mitjà de suport electoral. L’ús de models mixtes permet capturar aquests nivells variabilitat.
+
+Pel que fa als efectes fixos, la combinació de variables que va mostrar un millor rendiment en presència de la resta de covariables va ser:
+Edat Mitjana, Població, elecció, Mida mitjana de la llar, Renda mitjana per unitat de consum, índex de Gini i Població no espanyola. Aquesta selecció es va fer tenint en compte tant el seu rendiment en presència de la resta de variables com la necessitat de minimitzar problemes de multicol·linealitat, motiu pel qual no es van incloure simultàniament diferents mesures alternatives de renda.
+
+A partir d’aquesta especificació, es van considerar quatre configuracions alternatives d’efectes aleatoris, que poden expressar-se esquemàticament de la manera següent:
+
+$$ \text{Model 1: } \text{logit(Pct)} \sim X + (1 \mid \text{seccio}) + (1 \mid \text{eleccio}) $$
+
+$$ \text{Model 2: } \text{logit(Pct)} \sim X + \text{eleccio} + (1 \mid \text{seccio}) $$
+
+$$ \text{Model 3: } \text{logit(Pct)} \sim X + (1 \mid \text{seccio}) $$
+
+$$ \text{Model 4: } \text{logit(Pct)} \sim X + (1 \mid \text{eleccio}) $$
+
+on $X$ representa el conjunt d’efectes fixos socioeconòmics descrits anteriorment.
 
 ### 5.3.2 Model òptim
 
-ÈRIC TEXTO + GRÀFICS DEL MODEL MÉS TOP I TOT TAULES (BORREU LA FRASE)
+Finalment, els models es van comparar utilitzant els criteris d’informació AIC i BIC, així com el nombre de paràmetres estimats. D’acord amb aquests criteris, el Model 1, que incorpora interceptes aleatoris tant per secció censal com per elecció, va resultar el més adequat, indicant que ambdós nivells contribueixen de manera rellevant a explicar la variabilitat del suport electoral.
 
 ## 5.4 Models d'Aprenentatge Automàtic
 
