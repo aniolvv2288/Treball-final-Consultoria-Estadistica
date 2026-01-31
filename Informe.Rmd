@@ -1353,15 +1353,13 @@ Malgrat que les mètriques d’ajust i els criteris d’informació suggereixen 
 
 Així, els models no només es poden interpretar com a eines predictives, sinó sobretot com a instruments analítics per sintetitzar i validar relacions estructurals entre el context sociodemogràfic i el comportament electoral. En aquest sentit, tot i les imperfeccions en termes de residus i autocorrelació, els resultats reforcen qualitativament les conclusions extretes per vies alternatives d’anàlisi.
 
-```{r}
-################################################################################
-# ----- VISUALITZACIÓ TAULES PEL MODEL ESCOLLIT -----
-################################################################################
-
+```{r, results='asis', fig.pos='H'}
 library(gtsummary)
 library(dplyr)
-library(knitr)
 library(kableExtra)
+
+# Crear llista buida per guardar les taules
+taules_list <- list()
 
 for (partit in partits) {
   
@@ -1375,30 +1373,33 @@ for (partit in partits) {
     modify_header(label ~ "Variable") %>%
     modify_caption(paste("Coeficients (OR) per al partit:", partit))
   
-  # Extraiem el cos de la taula de gtsummary
   df_tbl <- tbl$table_body %>%
     select(label, estimate, ci, p.value) %>%
     rename(
       Variable = label,
       `OR` = estimate,
       `IC 95%` = ci,
-      `p-valor` = p.value)%>%
-    mutate(across(c(OR), ~ round(as.numeric(.), 2)))%>%
-    mutate(across(c(`p-valor`), ~ round(as.numeric(.), 4)))%>%
+      `p-valor` = p.value
+    ) %>%
+    mutate(across(c(OR), ~ round(as.numeric(.), 2))) %>%
+    mutate(across(c(`p-valor`), ~ round(as.numeric(.), 4))) %>%
     mutate(across(everything(), ~ ifelse(is.na(.), "", .)))
   
-  # Pintem amb kable (LaTeX-friendly)
-  print(kable(
+  # Guardem la taula a la llista com a objecte LaTeX
+  taules_list[[partit]] <- kable(
     df_tbl,
-    format = "markdown",
+    format = "latex",
     booktabs = TRUE,
     caption = paste("Coeficients (OR) per al partit:", partit),
     digits = 3,
     align = "lccc"
   ) %>%
-    kable_styling(
-      latex_options = c("hold_position", "striped")
-    ))
+    kable_styling(latex_options = c("hold_position", "striped"))
+}
+
+# Ara imprimim totes les taules **seguides**
+for (t in taules_list) {
+  cat(t, "\n\n")  # "\n\n" per separar taules
 }
 ```
 
@@ -1644,11 +1645,11 @@ p1+p2
 
 \newpage
 
-## D. Codi
+## C. Shiny
 
 Per visualitzar i explorar de manera interactiva els resultats del projecte, i poder interactuar amb les dades i les anàlisis de manera senzilla i intuïtiva, vam desenvolupar una aplicació Shiny. L'aplicació completa es pot consultar a: [Aplicació Shiny del projecte.](https://jordianguera.shinyapps.io/ComportamentElectoral/)
 
-## C. Codi
+## D. Codi
 
 Per assegurar la traçabilitat i la reproduïbilitat de totes les anàlisis, vam desenvolupar el projecte íntegrament a GitHub. El repositori complet es pot consultar a: [Repositori Github del projecte.](https://github.com/aniolvv2288/Treball-final-Consultoria-Estadistic)
 
